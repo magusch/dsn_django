@@ -356,6 +356,9 @@ fabric.properties
 
 # profiling data
 
+# vscode
+.vscode/
+
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
