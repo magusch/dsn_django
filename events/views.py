@@ -13,7 +13,7 @@ def index(request):
 
 
 def detail(request, event_id):
-    event = get_object_or_404(Events, pk=event_id)
+    event = get_object_or_404(Events2Post, pk=event_id)
     return render(request, 'events/detail.html', {'event': event})
 
 
