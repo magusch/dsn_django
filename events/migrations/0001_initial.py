@@ -7,31 +7,46 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='ChannelEvents',
+            name="ChannelEvents",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('post_id', models.IntegerField()),
-                ('title', models.CharField(max_length=250)),
-                ('date_from', models.DateTimeField(verbose_name='event date_from')),
-                ('price', models.CharField(max_length=150)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("post_id", models.IntegerField()),
+                ("title", models.CharField(max_length=250)),
+                ("date_from", models.DateTimeField(verbose_name="event date_from")),
+                ("price", models.CharField(max_length=150)),
             ],
         ),
         migrations.CreateModel(
-            name='Events',
+            name="Events",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('event_id', models.IntegerField()),
-                ('title', models.CharField(max_length=250)),
-                ('text', models.CharField(max_length=1000)),
-                ('price', models.CharField(max_length=150)),
-                ('address', models.CharField(max_length=200)),
-                ('date_from', models.DateTimeField(verbose_name='event date_from')),
-                ('date_to', models.DateTimeField(verbose_name='event date_to')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("event_id", models.IntegerField()),
+                ("title", models.CharField(max_length=250)),
+                ("text", models.CharField(max_length=1000)),
+                ("price", models.CharField(max_length=150)),
+                ("address", models.CharField(max_length=200)),
+                ("date_from", models.DateTimeField(verbose_name="event date_from")),
+                ("date_to", models.DateTimeField(verbose_name="event date_to")),
             ],
         ),
     ]
