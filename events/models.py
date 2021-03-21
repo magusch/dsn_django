@@ -59,6 +59,9 @@ class EventsNotApprovedOld(models.Model):  # Table 2
     def was_old(self):
         return self.date_to <= timezone.now()
 
+def last_post_date(self):  # TODO: to make normal function for making new posting time
+        last_post_event = self.objects.order_by('-post_date').first()
+        return (last_post_event.post_date + datetime.timedelta(hours=2))
 
 class Events2Post(models.Model):  # Table events for posting
     event_id = models.IntegerField()
@@ -89,6 +92,12 @@ class Events2Post(models.Model):  # Table events for posting
 
     def to_delete(self):
         return self.explored_date <= timezone.now() - datetime.timedelta(days=2)
+
+
+
+
+
+
 
 
 # class ChannelEvents(models.Model):
