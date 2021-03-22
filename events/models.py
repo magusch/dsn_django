@@ -2,6 +2,7 @@ import datetime
 
 from django.db import models
 from django.utils import timezone
+from django.utils.html import format_html
 
 
 class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
@@ -63,8 +64,11 @@ def last_post_date(self):  # TODO: to make normal function for making new postin
         last_post_event = self.objects.order_by('-post_date').first()
         return (last_post_event.post_date + datetime.timedelta(hours=2))
 
+status_color={'ReadyToPost':'green', 'Posted':'red'}
+
 class Events2Post(models.Model):  # Table events for posting
     event_id = models.IntegerField()
+    queue = models.IntegerField(default=1)
     title = models.CharField(max_length=250)
     post = models.TextField(default="", blank=True)
     image = models.CharField(max_length=250, blank=True)
@@ -92,6 +96,9 @@ class Events2Post(models.Model):  # Table events for posting
 
     def to_delete(self):
         return self.explored_date <= timezone.now() - datetime.timedelta(days=2)
+
+    def status_color(self):
+        return format_html(f'<span style="color: {status_color[self.status]};">{self.status}</span>')
 
 
 

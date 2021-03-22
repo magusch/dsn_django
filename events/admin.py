@@ -28,9 +28,24 @@ class EventsAdmin(admin.ModelAdmin):
 
 
 class Events2PostAdmin(admin.ModelAdmin):
-    list_display = ['title', 'post_date', 'status', 'date_from', open_url]
+    list_display = ['title', 'queue', 'post_date', 'status_color', 'date_from', open_url]
     list_filter = ['date_from', 'status']
     search_fields = ['title', 'post']
+    actions = ['change_queue']
+    admin.ModelAdmin.save_on_top=True
+
+    def get_ordering(self, request):
+        return ['queue', 'post_date']
+
+    def change_queue(self,request,queryset):
+        len_que = (len(queryset))
+        for i in range(len_que):
+            u = i + 1
+            if i == (len_que-1): u = 0
+            queryset.filter(event_id=queryset[i].event_id).update(queue=queryset[u].queue)
+    change_queue.short_description ='Change event place'
+
+    #def refresh(self,request):
 
 
 admin.site.register(EventsNotApprovedNew, EventsAdmin)
