@@ -25,6 +25,7 @@ if os.path.exists(dotenv_path):
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
+DATABASE_URL = os.environ.get("DATABASE_URL")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
@@ -80,6 +81,9 @@ WSGI_APPLICATION = "dsn_django.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+import connection_url
+
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -94,7 +98,7 @@ DATABASES = {
     #     'PORT': '5432',
     # }
 }
-
+DATABASES= {'default': connection_url.config(DATABASE_URL)}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
