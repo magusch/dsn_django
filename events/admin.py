@@ -34,6 +34,7 @@ class EventsAdmin(admin.ModelAdmin):
 class Events2PostAdmin(admin.ModelAdmin):
     list_display = ['title', 'queue', 'post_date', 'status_color', 'date_from', open_url]
     list_filter = ['date_from', 'status']
+    list_editable=['queue']
     search_fields = ['title', 'post']
     actions = ['change_queue', 'post_date_order_by_queue']
     admin.ModelAdmin.save_on_top = True
@@ -50,6 +51,8 @@ class Events2PostAdmin(admin.ModelAdmin):
             event.post_date = query_post_date_ordered_list[0]
             query_post_date_ordered_list.pop(0)
             event.save()
+
+    post_date_order_by_queue.acts_on_all = True
 
     #Change queue of events by round (1->2, 2->3, 3->1)
     def change_queue(self,request,queryset):
