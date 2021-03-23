@@ -68,7 +68,7 @@ status_color={'ReadyToPost':'green', 'Posted':'red'}
 
 class Events2Post(models.Model):  # Table events for posting
     event_id = models.IntegerField()
-    queue = models.IntegerField(default=1)
+    queue = models.IntegerField(default=10*datetime.datetime.now().weekday())
     title = models.CharField(max_length=250)
     post = models.TextField(default="", blank=True)
     image = models.CharField(max_length=250, blank=True)
@@ -100,7 +100,7 @@ class Events2Post(models.Model):  # Table events for posting
     def status_color(self):
         return format_html(f'<span style="color: {status_color[self.status]};">{self.status}</span>')
 
-
+    #Events2Post.objects.all().update(queue=F('queue')+1)
 
 
 
