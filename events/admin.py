@@ -4,9 +4,8 @@ from django.utils.html import format_html
 
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post
 
-import requests
-from django.urls import reverse_lazy
 from . import views
+
 
 def open_url(obj):
     return format_html("<a href='%s'>%s</a>" % (obj.url, obj.url))
