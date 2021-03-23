@@ -6,7 +6,7 @@ from django.utils.html import format_html
 
 
 class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
-    event_id = models.IntegerField()
+    event_id = models.CharField(max_length=30)
     approved = models.BooleanField(default=False)
     title = models.CharField(max_length=250)
     post = models.TextField(default="", blank=True)
@@ -34,7 +34,7 @@ class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
 
 
 class EventsNotApprovedOld(models.Model):  # Table 2
-    event_id = models.IntegerField()
+    event_id = models.CharField(max_length=30)
     approved = models.BooleanField(default=False)
     title = models.CharField(max_length=250)
     post = models.TextField(default="", blank=True)
@@ -67,7 +67,7 @@ def last_post_date(self):  # TODO: to make normal function for making new postin
 status_color={'ReadyToPost':'green', 'Posted':'red'}
 
 class Events2Post(models.Model):  # Table events for posting
-    event_id = models.IntegerField()
+    event_id = models.CharField(max_length=30, default=f'event_{datetime.date.today()}')
     queue = models.IntegerField(default=10*datetime.datetime.now().weekday())
     title = models.CharField(max_length=250)
     post = models.TextField(default="", blank=True)
