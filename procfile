@@ -1,1 +1,1 @@
-web: gunicorn dsn_django.wsgi
+web: gunicorn dsn-django.wsgi
