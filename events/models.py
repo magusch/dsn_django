@@ -105,7 +105,7 @@ class Events2Post(models.Model):  # Table events for posting
     #Events2Post.objects.all().update(queue=F('queue')+1)
 
 
-weekdays = ['Mon','Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 
 class PostingTime(models.Model):
@@ -115,9 +115,9 @@ class PostingTime(models.Model):
     posting_time_minutes = models.IntegerField(default=20)
 
     def __str__(self):
-        if self.start_weekday<7 & self.end_weekday<7:
+        if (0 <= self.start_weekday < 7) & (0 <= self.end_weekday < 7):
             posting = f"{weekdays[self.start_weekday]}-{weekdays[self.end_weekday]} " \
-                      f"{self.posting_time_hours}:{self.posting_time_minutes}"
+                      f"{self.posting_time_hours}:{self.posting_time_minutes:02}"
             return posting
         return f"{self.posting_time_hours}:{self.posting_time_minutes}"
 

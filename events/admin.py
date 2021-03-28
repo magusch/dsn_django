@@ -34,7 +34,7 @@ class EventsAdmin(admin.ModelAdmin):
 class Events2PostAdmin(admin.ModelAdmin):
     list_display = ['title', 'queue', 'post_date', 'status_color', 'date_from', open_url]
     list_filter = ['date_from', 'status']
-    list_editable=['queue']
+    list_editable = ['queue']
     search_fields = ['title', 'post']
     actions = ['change_queue', 'post_date_order_by_queue']
     admin.ModelAdmin.save_on_top = True
@@ -69,7 +69,25 @@ class Events2PostAdmin(admin.ModelAdmin):
         return
 
 
+weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+class PostingTimesAdmin(admin.ModelAdmin):
+
+    list_filter = ['start_weekday']
+    ordering = ['start_weekday', 'posting_time_hours']
+
+    def weekdayss(self):
+        if (0 <= self.start_weekday < 7) & (0 <= self.end_weekday < 7):
+            return f"{weekdays[self.start_weekday]}-{weekdays[self.end_weekday]}"
+        if self.start_weekday < 0: #we can add special postingtime for special date
+            return self.start_weekday*-1
+
+    def timepost(self):
+        return f"{self.posting_time_hours}:{self.posting_time_minutes:02}"
+
+    list_display = [weekdayss, timepost]
+
 admin.site.register(EventsNotApprovedNew, EventsAdmin)
 admin.site.register(EventsNotApprovedOld, EventsAdmin)
-admin.site.register(PostingTime)
+admin.site.register(PostingTime,PostingTimesAdmin)
 admin.site.register(Events2Post, Events2PostAdmin)
