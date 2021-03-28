@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404
 
 from django.http import HttpResponse #TODO: delete
 
-from .models import EventsNotApprovedNew,EventsNotApprovedOld, Events2Post
+from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime
 
 
 def index(request):
@@ -21,7 +21,15 @@ def detail(request, event_id):
 #take posting time for last event
 def last_post_date():  # TODO: to make normal function for making new posting time
     last_post_event = Events2Post.objects.order_by('-post_date').first()
-    return (last_post_event.post_date + datetime.timedelta(hours=2), last_post_event.queue+2)
+    if last_post_event:
+        return last_post_event.post_date + datetime.timedelta(hours=2), last_post_event.queue+2
+
+    today = datetime.datetime.now()+datetime.timedelta(hours=3) #TODO: timezone
+    post_time = PostingTime.objects.filter(start_weekday__lte=today.weekday()).filter(end_weekday__gte=today.weekday())\
+                    .order_by('posting_time_hours').first()
+    post_time = today.replace(hour=post_time.posting_time_hours,minute=post_time.posting_time_minutes)\
+                    + datetime.timedelta(1)
+    return post_time, 1
 
 
 #Move Events form not approved table to table with approved Events2Post

@@ -60,11 +60,13 @@ class EventsNotApprovedOld(models.Model):  # Table 2
     def was_old(self):
         return self.date_to <= timezone.now()
 
+
 def last_post_date(self):  # TODO: to make normal function for making new posting time
         last_post_event = self.objects.order_by('-post_date').first()
         return (last_post_event.post_date + datetime.timedelta(hours=2))
 
 status_color={'ReadyToPost':'green', 'Posted':'red'}
+
 
 class Events2Post(models.Model):  # Table events for posting
     event_id = models.CharField(max_length=30, default=f'event_{datetime.date.today()}')
@@ -103,20 +105,25 @@ class Events2Post(models.Model):  # Table events for posting
     #Events2Post.objects.all().update(queue=F('queue')+1)
 
 
+weekdays = ['Mon','Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+
+class PostingTime(models.Model):
+    start_weekday = models.IntegerField(default=4)
+    end_weekday = models.IntegerField(default=6)
+    posting_time_hours = models.IntegerField(default=13)
+    posting_time_minutes = models.IntegerField(default=20)
+
+    def __str__(self):
+        if self.start_weekday<7 & self.end_weekday<7:
+            posting = f"{weekdays[self.start_weekday]}-{weekdays[self.end_weekday]} " \
+                      f"{self.posting_time_hours}:{self.posting_time_minutes}"
+            return posting
+        return f"{self.posting_time_hours}:{self.posting_time_minutes}"
 
 
 
 
-# class ChannelEvents(models.Model):
-#     post_id = models.IntegerField()
-#     title = models.CharField(max_length=250)
-#     date_from = models.DateTimeField('event date_from')
-#     price = models.CharField(max_length=150)
-#
-#     def __str__(self):
-#         return self.title
-#
-#
 # class Events(models.Model):
 #     event_id = models.IntegerField()
 #     title = models.CharField(max_length=250)

@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django.utils.translation import ngettext
 from django.utils.html import format_html
 
-from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post
+from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime
 
 import requests
 from django.urls import reverse_lazy
@@ -64,6 +64,12 @@ class Events2PostAdmin(admin.ModelAdmin):
         self.post_date_order_by_queue(request,queryset)
     change_queue.short_description ='Change event place'
 
+    def refresh_posting_time(self,request,queryset):
+
+        return
+
+
 admin.site.register(EventsNotApprovedNew, EventsAdmin)
 admin.site.register(EventsNotApprovedOld, EventsAdmin)
+admin.site.register(PostingTime)
 admin.site.register(Events2Post, Events2PostAdmin)
