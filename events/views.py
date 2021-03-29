@@ -20,12 +20,14 @@ def detail(request, event_id):
 
 
 def good_post_time(last_post_time):
-    last_post_time.weekday()
+    if last_post_time <= datetime.datetime.now(datetime.timezone.utc):
+        last_post_time = datetime.datetime.now(datetime.timezone.utc)
+
     post_time_query_first = PostingTime.objects.filter(start_weekday__lte=last_post_time.weekday())\
         .filter(end_weekday__gte=last_post_time.weekday()).filter(posting_time_hours__gte=last_post_time.hour+1).first()
     if post_time_query_first:
-        post_time = last_post_time.replace(hour=post_time_query_first.posting_time_hours(),
-                                           minute=post_time_query_first.posting_time_minutes())
+        post_time = last_post_time.replace(hour=post_time_query_first.posting_time_hours,
+                                           minute=post_time_query_first.posting_time_minutes)
     else:
         next_day = last_post_time + datetime.timedelta(days=1)
         post_time = PostingTime.objects.filter(start_weekday__lte=next_day.weekday()).filter(
@@ -47,11 +49,16 @@ def last_post_date():
             post_time = last_post_event.post_date + datetime.timedelta(hours=2)
         return post_time, last_queue + 2
 
-    today = datetime.datetime.now() + datetime.timedelta(days=1, hours=3) #TODO: timezone
-    post_time = PostingTime.objects.filter(start_weekday__lte=today.weekday()).filter(end_weekday__gte=today.weekday())\
-                    .order_by('posting_time_hours').first()
-    post_time = today.replace(hour=post_time.posting_time_hours,minute=post_time.posting_time_minutes)
+    post_time = empty_queryset()
     return post_time, 1
+
+
+def empty_queryset():
+    today = datetime.datetime.now() + datetime.timedelta(days=1, hours=3)  # TODO: timezone
+    post_time = PostingTime.objects.filter(start_weekday__lte=today.weekday()).filter(end_weekday__gte=today.weekday()) \
+        .order_by('posting_time_hours').first()
+    post_time = today.replace(hour=post_time.posting_time_hours, minute=post_time.posting_time_minutes)
+    return post_time
 
 
 #Move Events form not approved table to table with approved Events2Post
@@ -66,10 +73,19 @@ def move_event_to_post(Events_model): #ToDO: remove from here
     events.delete()
 
 
+
+
 # Move events to table Events2posts,
 # It's not save
 def save_event(request):
     move_event_to_post(EventsNotApprovedNew)
     move_event_to_post(EventsNotApprovedOld)
     return HttpResponse("Good!!!")
+
+
+def delete_old_events(Events_model):
+    today = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=3)
+    Events_model.objects.filter(date_to__lt=today).delete()
+
+
 

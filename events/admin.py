@@ -4,7 +4,7 @@ from django.utils.html import format_html
 
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime
 
-import requests
+import datetime
 from django.urls import reverse_lazy
 from . import views
 
@@ -15,7 +15,7 @@ open_url.short_description = 'Url'
 
 class EventsAdmin(admin.ModelAdmin):
     list_display = ['title', 'approved', 'date_from', open_url,  'was_old']
-    list_filter = ['date_from']
+    list_filter = ['date_from', 'explored_date']
     search_fields = ['title', 'post']
     actions = ['approve_event']
 
@@ -36,7 +36,7 @@ class Events2PostAdmin(admin.ModelAdmin):
     list_filter = ['date_from', 'status']
     list_editable = ['queue']
     search_fields = ['title', 'post']
-    actions = ['change_queue', 'post_date_order_by_queue']
+    actions = ['change_queue', 'post_date_order_by_queue', 'refresh_posting_time']
     admin.ModelAdmin.save_on_top = True
 
     def get_ordering(self, request):
@@ -64,9 +64,18 @@ class Events2PostAdmin(admin.ModelAdmin):
         self.post_date_order_by_queue(request,queryset)
     change_queue.short_description ='Change event place'
 
-    def refresh_posting_time(self,request,queryset):
+    def refresh_posting_time(self, request, queryset):
+        for query in queryset:
+            last_post = Events2Post.objects.filter(queue__lt=query.queue).order_by('-post_date').first()
+            if not last_post:
+                last_post_time = datetime.datetime.now(datetime.timezone.utc)
+            else:
+                last_post_time = last_post.post_date
 
-        return
+            post_time = views.good_post_time(last_post_time)
+            query.post_date = post_time
+            query.save()
+
 
 
 weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -76,16 +85,16 @@ class PostingTimesAdmin(admin.ModelAdmin):
     list_filter = ['start_weekday']
     ordering = ['start_weekday', 'posting_time_hours']
 
-    def weekdayss(self):
+    def weekdays(self):
         if (0 <= self.start_weekday < 7) & (0 <= self.end_weekday < 7):
             return f"{weekdays[self.start_weekday]}-{weekdays[self.end_weekday]}"
         if self.start_weekday < 0: #we can add special postingtime for special date
-            return self.start_weekday*-1
+            return f"day – {self.start_weekday*-1}"
 
     def timepost(self):
         return f"{self.posting_time_hours}:{self.posting_time_minutes:02}"
 
-    list_display = [weekdayss, timepost]
+    list_display = [weekdays, timepost]
 
 admin.site.register(EventsNotApprovedNew, EventsAdmin)
 admin.site.register(EventsNotApprovedOld, EventsAdmin)

@@ -85,7 +85,7 @@ class Events2Post(models.Model):  # Table events for posting
     explored_date = models.DateTimeField(
         "published date and time", default=timezone.now
     )
-    post_date = models.DateTimeField("datetime for posting", blank=True)
+    post_date = models.DateTimeField("datetime for posting", blank=True, null=True)
     date_from = models.DateTimeField(
         "event date_from", default=(timezone.now() + datetime.timedelta(days=2))
     )
