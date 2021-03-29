@@ -61,10 +61,6 @@ class EventsNotApprovedOld(models.Model):  # Table 2
         return self.date_to <= timezone.now()
 
 
-def last_post_date(self):  # TODO: to make normal function for making new posting time
-        last_post_event = self.objects.order_by('-post_date').first()
-        return (last_post_event.post_date + datetime.timedelta(hours=2))
-
 status_color={'ReadyToPost':'green', 'Posted':'red'}
 
 

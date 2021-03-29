@@ -64,6 +64,7 @@ class Events2PostAdmin(admin.ModelAdmin):
         self.post_date_order_by_queue(request,queryset)
     change_queue.short_description ='Change event place'
 
+    #Delete post_time and put post_time from table posting_time
     def refresh_posting_time(self, request, queryset):
         for query in queryset:
             last_post = Events2Post.objects.filter(queue__lt=query.queue).order_by('-post_date').first()

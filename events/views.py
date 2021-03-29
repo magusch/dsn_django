@@ -88,4 +88,8 @@ def delete_old_events(Events_model):
     Events_model.objects.filter(date_to__lt=today).delete()
 
 
-
+def delete_event(request):
+    delete_old_events(EventsNotApprovedNew)
+    delete_old_events(EventsNotApprovedOld)
+    delete_old_events(Events2Post)
+    return HttpResponse("Good!!!")
