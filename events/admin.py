@@ -1,10 +1,11 @@
 from django.contrib import admin, messages
 from django.utils.translation import ngettext
 from django.utils.html import format_html
+from django.utils import timezone
 
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime
 
-import datetime
+
 from django.urls import reverse_lazy
 from . import views
 
@@ -69,7 +70,7 @@ class Events2PostAdmin(admin.ModelAdmin):
         for query in queryset:
             last_post = Events2Post.objects.filter(queue__lt=query.queue).order_by('-post_date').first()
             if not last_post:
-                last_post_time = datetime.datetime.now(datetime.timezone.utc)
+                last_post_time = timezone.now()
             else:
                 last_post_time = last_post.post_date
 

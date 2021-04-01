@@ -1,5 +1,5 @@
-import datetime
 from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
 
 from django.http import HttpResponse #TODO: delete
 
@@ -20,8 +20,8 @@ def detail(request, event_id):
 
 
 def good_post_time(last_post_time):
-    if last_post_time <= datetime.datetime.now(datetime.timezone.utc):
-        last_post_time = datetime.datetime.now(datetime.timezone.utc)
+    if last_post_time <= timezone.now():
+        last_post_time = timezone.now()
 
     post_time_query_first = PostingTime.objects.filter(start_weekday__lte=last_post_time.weekday())\
         .filter(end_weekday__gte=last_post_time.weekday()).filter(posting_time_hours__gte=last_post_time.hour+1).first()
@@ -29,7 +29,7 @@ def good_post_time(last_post_time):
         post_time = last_post_time.replace(hour=post_time_query_first.posting_time_hours,
                                            minute=post_time_query_first.posting_time_minutes)
     else:
-        next_day = last_post_time + datetime.timedelta(days=1)
+        next_day = last_post_time + timezone.timedelta(days=1)
         post_time = PostingTime.objects.filter(start_weekday__lte=next_day.weekday()).filter(
             end_weekday__gte=next_day.weekday()).order_by('posting_time_hours').first()
         post_time = next_day.replace(hour=post_time.posting_time_hours, minute=post_time.posting_time_minutes)
@@ -46,7 +46,7 @@ def last_post_date():
         try:
             post_time = good_post_time(last_post_event.post_date)
         except:
-            post_time = last_post_event.post_date + datetime.timedelta(hours=2)
+            post_time = last_post_event.post_date + timezone.timedelta(hours=2)
         return post_time, last_queue + 2
 
     post_time = empty_queryset()
@@ -54,7 +54,7 @@ def last_post_date():
 
 
 def empty_queryset():
-    today = datetime.datetime.now() + datetime.timedelta(days=1, hours=3)  # TODO: timezone
+    today = timezone.now() + timezone.timedelta(days=1)
     post_time = PostingTime.objects.filter(start_weekday__lte=today.weekday()).filter(end_weekday__gte=today.weekday()) \
         .order_by('posting_time_hours').first()
     post_time = today.replace(hour=post_time.posting_time_hours, minute=post_time.posting_time_minutes)
@@ -84,7 +84,7 @@ def save_event(request):
 
 
 def delete_old_events(Events_model):
-    today = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=3)
+    today = timezone.now()
     Events_model.objects.filter(date_to__lt=today).delete()
 
 

@@ -1,5 +1,3 @@
-import datetime
-
 from django.db import models
 from django.utils import timezone
 from django.utils.html import format_html
@@ -18,19 +16,19 @@ class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
         "published date and time", default=timezone.now
     )
     date_from = models.DateTimeField(
-        "event date_from", default=(timezone.now() + datetime.timedelta(days=2))
+        "event date_from", default=(timezone.now() + timezone.timedelta(days=2))
     )
     date_to = models.DateTimeField(
         "event date_to",
         blank=True,
-        default=(timezone.now() + datetime.timedelta(days=2)),
+        default=(timezone.now() + timezone.timedelta(days=2)),
     )
 
     def __str__(self):
         return self.title
 
     def was_old(self):
-        return self.explored_date <= timezone.now() - datetime.timedelta(days=2)
+        return self.explored_date <= timezone.now() - timezone.timedelta(days=2)
 
 
 class EventsNotApprovedOld(models.Model):  # Table 2
@@ -46,12 +44,12 @@ class EventsNotApprovedOld(models.Model):  # Table 2
         "published date and time", default=timezone.now
     )
     date_from = models.DateTimeField(
-        "event date_from", default=timezone.now() + datetime.timedelta(days=2)
+        "event date_from", default=timezone.now() + timezone.timedelta(days=2)
     )
     date_to = models.DateTimeField(
         "event date_to",
         blank=True,
-        default=(timezone.now() + datetime.timedelta(days=2)),
+        default=(timezone.now() + timezone.timedelta(days=2)),
     )
 
     def __str__(self):
@@ -65,8 +63,8 @@ status_color={'ReadyToPost':'green', 'Posted':'red'}
 
 
 class Events2Post(models.Model):  # Table events for posting
-    event_id = models.CharField(max_length=30, default=f'event_{datetime.date.today()}')
-    queue = models.IntegerField(default=10*datetime.datetime.now().weekday())
+    event_id = models.CharField(max_length=30, default=f'event_{timezone.now().date()}')
+    queue = models.IntegerField(default=10*timezone.now().weekday())
     title = models.CharField(max_length=250)
     post = models.TextField(default="", blank=True)
     image = models.CharField(max_length=250, blank=True)
@@ -83,17 +81,18 @@ class Events2Post(models.Model):  # Table events for posting
     )
     post_date = models.DateTimeField("datetime for posting", blank=True, null=True)
     date_from = models.DateTimeField(
-        "event date_from", default=(timezone.now() + datetime.timedelta(days=2))
+        "event date_from", default=(timezone.now() + timezone.timedelta(days=2))
     )
     date_to = models.DateTimeField(
-        "event date_to", default=(timezone.now() + datetime.timedelta(days=2))
+        "event date_to", default=(timezone.now() + timezone.timedelta(days=2))
     )
 
     def __str__(self):
         return self.title
 
     def to_delete(self):
-        return self.explored_date <= timezone.now() - datetime.timedelta(days=2)
+        return self.explored_date <= timezone.now() - timezone\
+            .timedelta(days=2)
 
     def status_color(self):
         return format_html(f'<span style="color: {status_color[self.status]};">{self.status}</span>')
