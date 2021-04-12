@@ -1,4 +1,7 @@
 db.sqlite3
+.htaccess
+
+events/migrations/
 
 ### Django ###
 *.log
