@@ -15,8 +15,8 @@ open_url.short_description = 'Url'
 
 
 class EventsAdmin(admin.ModelAdmin):
-    list_display = ['title', 'approved', 'date_from', open_url,  'was_old']
-    list_filter = ['date_from', 'explored_date']
+    list_display = ['title', 'approved', 'from_date', open_url,  'was_old']
+    list_filter = ['from_date', 'explored_date']
     search_fields = ['title', 'post']
     actions = ['approve_event']
 
@@ -33,8 +33,8 @@ class EventsAdmin(admin.ModelAdmin):
 
 
 class Events2PostAdmin(admin.ModelAdmin):
-    list_display = ['title', 'queue', 'post_date', 'status_color', 'date_from', open_url]
-    list_filter = ['date_from', 'status']
+    list_display = ['title', 'queue', 'post_date', 'status_color', 'from_date', open_url]
+    list_filter = ['from_date', 'status']
     list_editable = ['queue']
     search_fields = ['title', 'post']
     actions = ['change_queue', 'post_date_order_by_queue', 'refresh_posting_time']

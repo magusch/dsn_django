@@ -14,8 +14,8 @@ def move_event_to_post():
         "url" "price",
         "address",
         "explored_date",
-        "date_from",
-        "date_to",
+        "from_date",
+        "to_date",
     ]
     from events.models import EventsNotApprovedNew, Events2Post
 
@@ -23,6 +23,6 @@ def move_event_to_post():
 
     for event in events:
         Events2Post.objects.create(
-            status="ReadyToPost", post_date=event["date_from"], **event
+            status="ReadyToPost", post_date=event["from_date"], **event
         )
     events.delete()
