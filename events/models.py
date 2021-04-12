@@ -15,11 +15,11 @@ class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
     explored_date = models.DateTimeField(
         "published date and time", default=timezone.now
     )
-    date_from = models.DateTimeField(
+    from_date = models.DateTimeField(
         "event date_from", default=(timezone.now() + timezone.timedelta(days=2))
     )
-    date_to = models.DateTimeField(
-        "event date_to",
+    to_date = models.DateTimeField(
+        "event to_date",
         blank=True,
         default=(timezone.now() + timezone.timedelta(days=2)),
     )
@@ -43,11 +43,11 @@ class EventsNotApprovedOld(models.Model):  # Table 2
     explored_date = models.DateTimeField(
         "published date and time", default=timezone.now
     )
-    date_from = models.DateTimeField(
-        "event date_from", default=timezone.now() + timezone.timedelta(days=2)
+    from_date = models.DateTimeField(
+        "event from_date", default=timezone.now() + timezone.timedelta(days=2)
     )
-    date_to = models.DateTimeField(
-        "event date_to",
+    to_date = models.DateTimeField(
+        "event to_date",
         blank=True,
         default=(timezone.now() + timezone.timedelta(days=2)),
     )
@@ -56,7 +56,7 @@ class EventsNotApprovedOld(models.Model):  # Table 2
         return self.title
 
     def was_old(self):
-        return self.date_to <= timezone.now()
+        return self.to_date <= timezone.now()
 
 
 status_color={'ReadyToPost':'green', 'Posted':'red'}
@@ -80,11 +80,11 @@ class Events2Post(models.Model):  # Table events for posting
         "published date and time", default=timezone.now
     )
     post_date = models.DateTimeField("datetime for posting", blank=True, null=True)
-    date_from = models.DateTimeField(
-        "event date_from", default=(timezone.now() + timezone.timedelta(days=2))
+    from_date = models.DateTimeField(
+        "event from_date", default=(timezone.now() + timezone.timedelta(days=2))
     )
-    date_to = models.DateTimeField(
-        "event date_to", default=(timezone.now() + timezone.timedelta(days=2))
+    to_date = models.DateTimeField(
+        "event to_date", default=(timezone.now() + timezone.timedelta(days=2))
     )
 
     def __str__(self):
@@ -125,8 +125,8 @@ class PostingTime(models.Model):
 #     post = models.TextField(default='', blank=True)
 #     price = models.CharField(max_length=150, blank=True)
 #     address = models.CharField(max_length=200, blank=True)
-#     date_from = models.DateTimeField('event date_from')
-#     date_to = models.DateTimeField('event date_to')
+#     from_date = models.DateTimeField('event from_date')
+#     to_date = models.DateTimeField('event to_date')
 #     pub_datetime = models.DateTimeField('published date and time', default=timezone.now)
 #
 #     def __str__(self):

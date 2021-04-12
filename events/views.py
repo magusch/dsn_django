@@ -9,7 +9,7 @@ current_tz = timezone.get_current_timezone()
 current_tz_int = timezone.get_default_timezone().normalize(timezone.now()).hour - timezone.now().hour
 
 def index(request):
-    latest_event_list = Events2Post.objects.order_by('-date_from')[:5]
+    latest_event_list = Events2Post.objects.order_by('-from_date')[:5]
     context = {
         'latest_event_list': latest_event_list,
     }
@@ -63,7 +63,7 @@ def empty_queryset():
 
 #Move Events form not approved table to table with approved Events2Post
 def move_event_to_post(Events_model): #ToDO: remove from here
-    event2post_list = ['event_id', 'title', 'post', 'image', 'url', 'price', 'address', 'explored_date', 'date_from', 'date_to']
+    event2post_list = ['event_id', 'title', 'post', 'image', 'url', 'price', 'address', 'explored_date', 'from_date', 'to_date']
 
     events = Events_model.objects.filter(approved=True)
 
@@ -85,7 +85,7 @@ def save_event(request):
 
 def delete_old_events(Events_model):
     today = timezone.now()
-    Events_model.objects.filter(date_to__lt=today).delete()
+    Events_model.objects.filter(to_date__lt=today).delete()
 
 
 def delete_event(request):
