@@ -37,11 +37,21 @@ class Events2PostAdmin(admin.ModelAdmin):
     list_filter = ['from_date', 'status']
     list_editable = ['queue']
     search_fields = ['title', 'post']
-    actions = ['change_queue', 'post_date_order_by_queue', 'refresh_posting_time']
+    actions = ['change_status_to_ReadyToPost','change_queue', 'post_date_order_by_queue', 'refresh_posting_time']
     admin.ModelAdmin.save_on_top = True
 
     def get_ordering(self, request):
         return ['queue']
+
+
+    def change_status_to_ReadyToPost(self,request,queryset):
+        updated = queryset.update(status="ReadyToPost")
+        self.message_user(request, ngettext(
+            '%d event was changed on ReadyToPost.',
+            '%d events were changed on ReadyToPost.',
+            updated,
+        ) % updated, messages.SUCCESS)
+
 
     #Order by queue and change post_time in this order
     def post_date_order_by_queue(self,request,queryset):
