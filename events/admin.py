@@ -1,17 +1,16 @@
 from django.contrib import admin, messages
 from django.utils.translation import ngettext
 from django.utils.html import format_html
-from django.utils import timezone
 
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime
 
-
 from django.urls import reverse_lazy
-from . import views
+from . import views, utils
 
 def open_url(obj):
     return format_html("<a href='%s'>%s</a>" % (obj.url, obj.url))
-open_url.short_description = 'Url'
+
+open_url.short_description = 'URL'
 
 
 class EventsAdmin(admin.ModelAdmin):
@@ -35,25 +34,28 @@ class EventsAdmin(admin.ModelAdmin):
 class Events2PostAdmin(admin.ModelAdmin):
     list_display = ['title', 'queue', 'post_date', 'status_color', 'from_date', open_url]
     list_filter = ['from_date', 'status']
-    list_editable = ['queue']
+    list_editable = ['queue', 'post_date']
     search_fields = ['title', 'post']
-    actions = ['change_queue', 'post_date_order_by_queue', 'refresh_posting_time']
+    actions = ['change_status_to_ReadyToPost', 'empty_post_time','change_queue',
+               utils.post_date_order_by_queue, utils.refresh_posting_time]
     admin.ModelAdmin.save_on_top = True
 
     def get_ordering(self, request):
-        return ['queue']
+        return ['status', 'queue']
 
-    #Order by queue and change post_time in this order
-    def post_date_order_by_queue(self,request,queryset):
-        query_post_date_ordered = Events2Post.objects.exclude(status='Posted').order_by('post_date')
-        query_post_date_ordered_list = [pd.post_date for pd in query_post_date_ordered]
-        query_queue_ordered = Events2Post.objects.exclude(status='Posted').order_by('queue')
-        for i, event in enumerate(query_queue_ordered):
-            event.post_date = query_post_date_ordered_list[0]
-            query_post_date_ordered_list.pop(0)
-            event.save()
+    def change_status_to_ReadyToPost(self,request,queryset):
+        updated = queryset.update(status="ReadyToPost")
+        self.message_user(request, ngettext(
+            '%d event was changed on ReadyToPost.',
+            '%d events were changed on ReadyToPost.',
+            updated,
+        ) % updated, messages.SUCCESS)
 
-    post_date_order_by_queue.acts_on_all = True
+    utils.post_date_order_by_queue.acts_on_all = True
+
+    # empty post_time
+    def empty_post_time(self,request,queryset):
+        queryset.update(post_date=None)
 
     #Change queue of events by round (1->2, 2->3, 3->1)
     def change_queue(self,request,queryset):
@@ -62,25 +64,14 @@ class Events2PostAdmin(admin.ModelAdmin):
             u = i + 1
             if i == (len_que-1): u = 0
             queryset.filter(event_id=queryset[i].event_id).update(queue=queryset[u].queue)
-        self.post_date_order_by_queue(request,queryset)
+        utils.post_date_order_by_queue(self, request, queryset)
     change_queue.short_description ='Change event place'
 
     #Delete post_time and put post_time from table posting_time
-    def refresh_posting_time(self, request, queryset):
-        for query in queryset:
-            last_post = Events2Post.objects.filter(queue__lt=query.queue).order_by('-post_date').first()
-            if not last_post:
-                last_post_time = timezone.now()
-            else:
-                last_post_time = last_post.post_date
-
-            post_time = views.good_post_time(last_post_time)
-            query.post_date = post_time
-            query.save()
-
 
 
 weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
 
 class PostingTimesAdmin(admin.ModelAdmin):
 
