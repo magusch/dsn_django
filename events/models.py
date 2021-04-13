@@ -61,8 +61,11 @@ class EventsNotApprovedOld(models.Model):  # Table 2
 
 status_color={'ReadyToPost':'green', 'Posted':'red'}
 
+
 def last_queue():
-    return Events2Post.objects.order_by('-queue').first().queue+2
+    q = Events2Post.objects.order_by('-queue').first()
+    if q: return q.queue+2
+
 
 class Events2Post(models.Model):  # Table events for posting
     event_id = models.CharField(max_length=30, default=f'event_{timezone.now().date()}')

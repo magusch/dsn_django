@@ -1,7 +1,6 @@
 from django.utils import timezone
 
-from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime
-from . import views
+from .models import Events2Post, PostingTime
 
 current_tz = timezone.get_current_timezone()
 current_tz_int = timezone.get_default_timezone().normalize(timezone.now()).hour - timezone.now().hour

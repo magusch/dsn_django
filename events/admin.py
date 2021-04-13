@@ -1,16 +1,15 @@
 from django.contrib import admin, messages
 from django.utils.translation import ngettext
 from django.utils.html import format_html
-from django.utils import timezone
 
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime
-
 
 from django.urls import reverse_lazy
 from . import views, utils
 
 def open_url(obj):
     return format_html("<a href='%s'>%s</a>" % (obj.url, obj.url))
+
 open_url.short_description = 'URL'
 
 
@@ -30,7 +29,6 @@ class EventsAdmin(admin.ModelAdmin):
         views.move_event_to_post(self.model)
 
     approve_event.short_description = "Mark selected stories as approved"
-
 
 
 class Events2PostAdmin(admin.ModelAdmin):
@@ -72,9 +70,8 @@ class Events2PostAdmin(admin.ModelAdmin):
     #Delete post_time and put post_time from table posting_time
 
 
-
-
 weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
 
 class PostingTimesAdmin(admin.ModelAdmin):
 
