@@ -1,9 +1,4 @@
-db.sqlite3
-<<<<<<< HEAD
-
-.htaccess
-=======
->>>>>>> parent of cbdde6f (Merge branch 'cpanel_version' into master)
+.idea/
 static/
 events/migrations
 ### Django ###
