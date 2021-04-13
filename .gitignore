@@ -1,6 +1,9 @@
 db.sqlite3
-static/
-events/migrations
+
+.htaccess
+
+events/migrations/
+
 ### Django ###
 *.log
 *.pot
