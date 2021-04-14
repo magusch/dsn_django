@@ -65,7 +65,8 @@ def good_post_time(last_post_time):
         last_post_time = timezone.now()
     post_time_query_first = PostingTime.objects.filter(start_weekday__lte=last_post_time.weekday())\
         .filter(end_weekday__gte=last_post_time.weekday())\
-        .filter(posting_time_hours__gte=last_post_time.hour+current_tz_int+1).first()
+        .filter(posting_time_hours__gt=last_post_time.hour+current_tz_int+1)\
+        .order_by('posting_time_hours').first()
     if post_time_query_first:
         post_time = last_post_time.replace(hour=post_time_query_first.posting_time_hours-current_tz_int,
                                            minute=post_time_query_first.posting_time_minutes)
@@ -83,7 +84,8 @@ def good_post_time(last_post_time):
 
 def empty_queryset():
     today = timezone.now() + timezone.timedelta(days=1)
-    post_time = PostingTime.objects.filter(start_weekday__lte=today.weekday()).filter(end_weekday__gte=today.weekday()) \
+    post_time = PostingTime.objects.filter(start_weekday__lte=today.weekday())\
+        .filter(end_weekday__gte=today.weekday()) \
         .order_by('posting_time_hours').first()
     post_time = today.replace(hour=post_time.posting_time_hours, minute=post_time.posting_time_minutes)
     return post_time
