@@ -4,6 +4,7 @@ from .models import Events2Post, PostingTime
 
 current_tz = timezone.get_current_timezone()
 current_tz_int = timezone.get_default_timezone().normalize(timezone.now()).hour - timezone.now().hour
+if current_tz_int<0: current_tz_int= 24 + current_tz_int
 
 
 def refresh_posting_time(self, request, queryset):
@@ -72,7 +73,8 @@ def good_post_time(last_post_time):
         next_day = last_post_time + timezone.timedelta(days=1)
         post_time = PostingTime.objects.filter(start_weekday__lte=next_day.weekday()).filter(
             end_weekday__gte=next_day.weekday()).order_by('posting_time_hours').first()
-        post_time = next_day.replace(hour=post_time.posting_time_hours-current_tz_int, minute=post_time.posting_time_minutes)
+        post_time = next_day.replace(hour=post_time.posting_time_hours-current_tz_int,
+                                     minute=post_time.posting_time_minutes)
     return post_time
 
 

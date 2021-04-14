@@ -5,7 +5,7 @@ from django.utils.html import format_html
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime
 
 from django.urls import reverse_lazy
-from . import views, utils
+from . import utils
 
 def open_url(obj):
     return format_html("<a href='%s'>%s</a>" % (obj.url, obj.url))
@@ -26,7 +26,7 @@ class EventsAdmin(admin.ModelAdmin):
             '%d events were successfully approved.',
             updated,
         ) % updated, messages.SUCCESS)
-        views.move_event_to_post(self.model)
+        utils.move_event_to_post(self.model)
 
     approve_event.short_description = "Mark selected stories as approved"
 
