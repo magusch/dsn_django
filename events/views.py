@@ -1,26 +1,25 @@
 from django.utils import timezone
 from django.db.models import Q
-
 from django.http import HttpResponse  # TODO: delete
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import redirect
 
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post
 
-from . import utils
+from . import utils, models
 
 
-# Move events to table Events2posts,
-# It's not save
-def save_event(request):
+def move_approved_events(request):
     utils.move_event_to_post(EventsNotApprovedNew)
     utils.move_event_to_post(EventsNotApprovedOld)
-    return HttpResponse("Good!!!")
+    return HttpResponse("Ok")
 
 
-def delete_event(request):
+def remove_old_events(request):
     utils.delete_old_events(EventsNotApprovedNew)
     utils.delete_old_events(EventsNotApprovedOld)
     utils.delete_old_events(Events2Post)
-    return HttpResponse("Good!!!")
+    return HttpResponse("Ok")
 
 
 def fill_empty_post_time():
@@ -35,20 +34,17 @@ def fill_empty_post_time():
     utils.refresh_posting_time(self=None, request=None, queryset=queryset)
 
 
-def run_all(request):
-    if request.method == "GET":
-        # move events to table Events2Post
-        save_event(request=None)
+def update_all(request):
+    # move events to table Events2Post
+    move_approved_events(request=None)
 
-        # If post_time is empty fill it with logic
-        fill_empty_post_time()
+    # If post_time is empty fill it with logic
+    fill_empty_post_time()
 
-        # Sort by queue and put post_time in this order
-        utils.post_date_order_by_queue()
+    # Sort by queue and put post_time in this order
+    utils.post_date_order_by_queue()
 
-        # Delete Old events from all tables
-        delete_event(request)
+    # Delete Old events from all tables
+    remove_old_events(request)
 
-        return HttpResponse("Good!!!")
-    else:
-        return HttpResponse("BAD!!!")
+    return HttpResponse("Ok")

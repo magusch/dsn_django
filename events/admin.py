@@ -16,6 +16,8 @@ open_url.short_description = "URL"
 
 
 class EventsAdmin(admin.ModelAdmin):
+    change_list_template = "events/change_list.html"
+
     list_display = ["title", "approved", "from_date", open_url, "was_old"]
     list_filter = ["from_date", "explored_date"]
     search_fields = ["title", "post"]
