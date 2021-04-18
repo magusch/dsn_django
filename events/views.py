@@ -24,7 +24,8 @@ def remove_old_events(request):
     return HttpResponse("Ok")
 
 
-def fill_empty_post_time():
+@staff_member_required
+def fill_empty_post_time(request):
     criterion1 = Q(post_date__lte=timezone.now())
     criterion2 = Q(post_date__isnull=True)
     queryset = (
@@ -34,6 +35,8 @@ def fill_empty_post_time():
         .all()
     )
     utils.refresh_posting_time(self=None, request=None, queryset=queryset)
+
+    return HttpResponse("Ok")
 
 
 @staff_member_required
