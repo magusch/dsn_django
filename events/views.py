@@ -9,12 +9,14 @@ from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post
 from . import utils, models
 
 
+@staff_member_required
 def move_approved_events(request):
     utils.move_event_to_post(EventsNotApprovedNew)
     utils.move_event_to_post(EventsNotApprovedOld)
     return HttpResponse("Ok")
 
 
+@staff_member_required
 def remove_old_events(request):
     utils.delete_old_events(EventsNotApprovedNew)
     utils.delete_old_events(EventsNotApprovedOld)
@@ -34,6 +36,7 @@ def fill_empty_post_time():
     utils.refresh_posting_time(self=None, request=None, queryset=queryset)
 
 
+@staff_member_required
 def update_all(request):
     # move events to table Events2Post
     move_approved_events(request=None)
