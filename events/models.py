@@ -59,16 +59,17 @@ class EventsNotApprovedOld(models.Model):  # Table 2
         return self.to_date <= timezone.now()
 
 
-status_color={'ReadyToPost':'green', 'Posted':'red'}
+status_color = {"ReadyToPost": "green", "Posted": "red"}
 
 
 def last_queue():
-    q = Events2Post.objects.order_by('-queue').first()
-    if q: return q.queue+2
+    q = Events2Post.objects.order_by("-queue").first()
+    if q:
+        return q.queue + 2
 
 
 class Events2Post(models.Model):  # Table events for posting
-    event_id = models.CharField(max_length=30, default=f'event_{timezone.now().date()}')
+    event_id = models.CharField(max_length=30, default=f"event_{timezone.now().date()}")
     queue = models.IntegerField(default=last_queue)
     title = models.CharField(max_length=250)
     post = models.TextField(default="", blank=True)
@@ -96,16 +97,17 @@ class Events2Post(models.Model):  # Table events for posting
         return self.title
 
     def to_delete(self):
-        return self.explored_date <= timezone.now() - timezone\
-            .timedelta(days=2)
+        return self.explored_date <= timezone.now() - timezone.timedelta(days=2)
 
     def status_color(self):
-        return format_html(f'<span style="color: {status_color[self.status]};">{self.status}</span>')
+        return format_html(
+            f'<span style="color: {status_color[self.status]};">{self.status}</span>'
+        )
 
-    #Events2Post.objects.all().update(queue=F('queue')+1)
+    # Events2Post.objects.all().update(queue=F('queue')+1)
 
 
-weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
 
 class PostingTime(models.Model):
@@ -116,12 +118,12 @@ class PostingTime(models.Model):
 
     def __str__(self):
         if (0 <= self.start_weekday < 7) & (0 <= self.end_weekday < 7):
-            posting = f"{weekdays[self.start_weekday]}-{weekdays[self.end_weekday]} " \
-                      f"{self.posting_time_hours}:{self.posting_time_minutes:02}"
+            posting = (
+                f"{weekdays[self.start_weekday]}-{weekdays[self.end_weekday]} "
+                f"{self.posting_time_hours}:{self.posting_time_minutes:02}"
+            )
             return posting
         return f"{self.posting_time_hours}:{self.posting_time_minutes}"
-
-
 
 
 # class Events(models.Model):
