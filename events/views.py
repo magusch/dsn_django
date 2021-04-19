@@ -42,10 +42,10 @@ def fill_empty_post_time(request):
 @staff_member_required
 def update_all(request):
     # move events to table Events2Post
-    move_approved_events(request=None)
+    move_approved_events(request)
 
     # If post_time is empty fill it with logic
-    fill_empty_post_time()
+    fill_empty_post_time(request)
 
     # Sort by queue and put post_time in this order
     utils.post_date_order_by_queue()
