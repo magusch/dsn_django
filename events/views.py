@@ -10,6 +10,11 @@ from . import utils, models
 
 
 @staff_member_required
+def check_event_status(request):
+    return HttpResponse("Pass")
+
+
+@staff_member_required
 def move_approved_events(request):
     utils.move_event_to_post(EventsNotApprovedNew)
     utils.move_event_to_post(EventsNotApprovedOld)
