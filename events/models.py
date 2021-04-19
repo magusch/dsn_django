@@ -5,13 +5,13 @@ from django.utils.html import format_html
 
 class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
     event_id = models.CharField(max_length=30)
-    approved = models.BooleanField(default=False)
-    title = models.CharField(max_length=250)
+    approved = models.BooleanField(default=False, blank=True)
+    title = models.CharField(max_length=500)
     post = models.TextField(default="", blank=True)
-    image = models.CharField(max_length=250, blank=True)
-    url = models.CharField(max_length=250, blank=True)
-    price = models.CharField(max_length=150, blank=True)
-    address = models.CharField(max_length=200, blank=True)
+    image = models.CharField(max_length=500, blank=True, null=True)
+    url = models.CharField(max_length=500, blank=True)
+    price = models.CharField(max_length=500, blank=True)
+    address = models.CharField(max_length=500, blank=True)
     explored_date = models.DateTimeField(
         "published date and time", default=timezone.now
     )
@@ -34,12 +34,12 @@ class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
 class EventsNotApprovedOld(models.Model):  # Table 2
     event_id = models.CharField(max_length=30)
     approved = models.BooleanField(default=False)
-    title = models.CharField(max_length=250)
+    title = models.CharField(max_length=500)
     post = models.TextField(default="", blank=True)
-    image = models.CharField(max_length=250, blank=True)
-    url = models.CharField(max_length=250, blank=True)
-    price = models.CharField(max_length=150, blank=True)
-    address = models.CharField(max_length=200, blank=True)
+    image = models.CharField(max_length=500, blank=True, null=True)
+    url = models.CharField(max_length=500, blank=True)
+    price = models.CharField(max_length=500, blank=True)
+    address = models.CharField(max_length=500, blank=True)
     explored_date = models.DateTimeField(
         "published date and time", default=timezone.now
     )
@@ -71,17 +71,17 @@ def last_queue():
 class Events2Post(models.Model):  # Table events for posting
     event_id = models.CharField(max_length=30, default=f"event_{timezone.now().date()}")
     queue = models.IntegerField(default=last_queue)
-    title = models.CharField(max_length=250)
+    title = models.CharField(max_length=500)
     post = models.TextField(default="", blank=True)
-    image = models.CharField(max_length=250, blank=True)
-    url = models.CharField(max_length=250, blank=True)
+    image = models.CharField(max_length=500, blank=True, null=True)
+    url = models.CharField(max_length=500, blank=True)
     status = models.CharField(
         max_length=15,
         choices=(("ReadyToPost", "Ready To Post"), ("Posted", "Posted")),
         default="ReadyToPost",
     )
     price = models.CharField(max_length=150, blank=True)
-    address = models.CharField(max_length=200, blank=True)
+    address = models.CharField(max_length=500, blank=True)
     explored_date = models.DateTimeField(
         "published date and time", default=timezone.now
     )
