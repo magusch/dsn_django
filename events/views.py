@@ -1,74 +1,61 @@
-from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.db.models import Q
+from django.http import HttpResponse  # TODO: delete
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import redirect
 
-from django.http import HttpResponse #TODO: delete
+from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post
 
-from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime
-
-from . import utils
-
-current_tz = timezone.get_current_timezone()
-current_tz_int = timezone.get_default_timezone().normalize(timezone.now()).hour - timezone.now().hour
-
-def index(request):
-    latest_event_list = Events2Post.objects.order_by('-from_date')[:5]
-    context = {
-        'latest_event_list': latest_event_list,
-    }
-    return render(request, 'events/index.html', context)
+from . import utils, models
 
 
-def detail(request, event_id):
-    event = get_object_or_404(Events2Post, pk=event_id)
-    return render(request, 'events/detail.html', {'event': event})
+@staff_member_required
+def check_event_status(request):
+    return HttpResponse("Pass")
 
 
-
-
-
-
-
-# Move events to table Events2posts,
-# It's not save
-def save_event(request):
+@staff_member_required
+def move_approved_events(request):
     utils.move_event_to_post(EventsNotApprovedNew)
     utils.move_event_to_post(EventsNotApprovedOld)
-    return HttpResponse("Good!!!")
+    return HttpResponse("Ok")
 
 
-def delete_event(request):
+@staff_member_required
+def remove_old_events(request):
     utils.delete_old_events(EventsNotApprovedNew)
     utils.delete_old_events(EventsNotApprovedOld)
     utils.delete_old_events(Events2Post)
-    return HttpResponse("Good!!!")
+    return HttpResponse("Ok")
 
 
-def fill_empty_post_time():
+@staff_member_required
+def fill_empty_post_time(request):
     criterion1 = Q(post_date__lte=timezone.now())
     criterion2 = Q(post_date__isnull=True)
-    queryset = Events2Post.objects.exclude(status='Posted')\
-        .filter(criterion1 | criterion2).order_by('queue').all()
+    queryset = (
+        Events2Post.objects.exclude(status="Posted")
+        .filter(criterion1 | criterion2)
+        .order_by("queue")
+        .all()
+    )
     utils.refresh_posting_time(self=None, request=None, queryset=queryset)
 
-def run_all(request):
-    if request.method == 'GET':
+    return HttpResponse("Ok")
 
-        # move events to table Events2Post
-        utils.move_event_to_post(EventsNotApprovedNew)
-        utils.move_event_to_post(EventsNotApprovedOld)
 
-        #If post_time is empty fill it with logic
-        fill_empty_post_time()
+@staff_member_required
+def update_all(request):
+    # move events to table Events2Post
+    move_approved_events(request)
 
-        # Sort by queue and put post_time in this order
-        utils.post_date_order_by_queue()
+    # If post_time is empty fill it with logic
+    fill_empty_post_time(request)
 
-        # Delete Old events from all tables
-        utils.delete_old_events(EventsNotApprovedNew)
-        utils.delete_old_events(EventsNotApprovedOld)
-        utils.delete_old_events(Events2Post)
+    # Sort by queue and put post_time in this order
+    utils.post_date_order_by_queue()
 
-        return HttpResponse("Good!!!")
-    else:
-        return HttpResponse("BAD!!!")
+    # Delete Old events from all tables
+    remove_old_events(request)
+
+    return HttpResponse("Ok")
