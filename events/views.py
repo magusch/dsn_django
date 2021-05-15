@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.http import HttpResponse  # TODO: delete
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import redirect
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post
 
@@ -29,19 +30,27 @@ def remove_old_events(request):
     return HttpResponse("Ok")
 
 
+@csrf_exempt
 @staff_member_required
 def fill_empty_post_time(request):
-    criterion1 = Q(post_date__lte=timezone.now())
-    criterion2 = Q(post_date__isnull=True)
-    queryset = (
-        Events2Post.objects.exclude(status="Posted")
-        .filter(criterion1 | criterion2)
-        .order_by("queue")
-        .all()
-    )
-    utils.refresh_posting_time(self=None, request=None, queryset=queryset)
+    if request.method == "POST":
+        print("")
+        response = None
 
-    return HttpResponse("Ok")
+    else:
+        criterion1 = Q(post_date__lte=timezone.now())
+        criterion2 = Q(post_date__isnull=True)
+        queryset = (
+            Events2Post.objects.exclude(status="Posted")
+            .filter(criterion1 | criterion2)
+            .order_by("queue")
+            .all()
+        )
+        utils.refresh_posting_time(self=None, request=None, queryset=queryset)
+
+        response = HttpResponse("Ok")
+
+    return response
 
 
 @staff_member_required
