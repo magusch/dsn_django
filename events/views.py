@@ -1,5 +1,4 @@
 from django.utils import timezone
-from django.db.models import Q
 from django.http import HttpResponse  # TODO: delete
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import redirect
@@ -38,15 +37,12 @@ def fill_empty_post_time(request):
         response = None
 
     else:
-        criterion1 = Q(post_date__lte=timezone.now())
-        criterion2 = Q(post_date__isnull=True)
         queryset = (
             Events2Post.objects.exclude(status="Posted")
-            .filter(criterion1 | criterion2)
             .order_by("queue")
             .all()
         )
-        utils.refresh_posting_time(self=None, request=None, queryset=queryset)
+        utils.refresh_posting_time(queryset=queryset)
 
         response = HttpResponse("Ok")
 

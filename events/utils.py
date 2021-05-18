@@ -1,3 +1,6 @@
+from typing import Generator, List
+import datetime
+
 from django.utils import timezone
 
 from .models import Events2Post, PostingTime
@@ -8,11 +11,72 @@ current_tz_int = (
 )
 
 
-def refresh_posting_time(self, request, queryset):
-    for query in queryset:
+def _is_weekday(dt: datetime.datetime) -> bool:
+    return dt.weekday() in [0, 1, 2, 3, 4]
+
+
+def _days_posting_times(time_point: datetime) -> Generator[None, List[datetime.datetime], None]:
+    weekday = (
+        PostingTime.objects.filter(start_weekday__lte=0)
+        .filter(end_weekday__gte=4)
+        .order_by("posting_time_hours")
+        .first()
+    )
+    weekend = (
+        PostingTime.objects.filter(start_weekday__lte=5)
+        .filter(end_weekday__gte=6)
+        .order_by("posting_time_hours")
+        .first()
+    )
+
+    today_posting_times = weekday if _is_weekday(time_point) else weekend
+    posting_times = [i for i in today_posting_times if i >= time_point]
+
+    if posting_times:
+        yield posting_times
+
+    while True:
+        time_point += datatime.timedelta(days=1)
+
+        ymd = dict(
+            year=time_point.year,
+            month=time_point.month,
+            day=time_point.day,
+        )
+
+        datetimes = weekday if _is_weekday(time_point) else weekend
+        yield [i.replace(**ymd) for i in datetimes]
+
+
+def _postin_times(target_time: datetime=None):
+    if target_time is None:
+        target_time = timezone.now()
+
+    times = _days_posting_times(target_time)
+
+    while True:
+        yield from next(times)
+
+
+def refresh_posting_time(queryset):
+    """
+    Parameters
+    ----------
+    queryset : list
+        список с записями в таблице.
+    """
+    times = _postin_times()
+
+    for event in queryset:
+        if event.post_date is None:
+            pass
+
+        else:
+            pass
+
         last_post = (
             Events2Post.objects.exclude(status="Posted")
-            .filter(queue__lt=query.queue)
+            .filter(queue__lt=event.queue)
             .order_by("-post_date")
             .first()
         )
@@ -22,8 +86,8 @@ def refresh_posting_time(self, request, queryset):
             last_post_time = last_post.post_date
 
         post_time = good_post_time(last_post_time)
-        query.post_date = post_time
-        query.save()
+        event.post_date = post_time
+        event.save()
 
 
 # Order by queue and change post_time in this order
