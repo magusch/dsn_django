@@ -58,7 +58,7 @@ def _postin_times(target_time: datetime=None):
         yield from next(times)
 
 
-def refresh_posting_time(queryset):
+def refresh_posting_time(self, request, queryset):
     """
     Parameters
     ----------

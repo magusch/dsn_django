@@ -1,6 +1,9 @@
+
 .idea/
 static/
 events/migrations
+.htaccess
+
 ### Django ###
 *.log
 *.pot
@@ -385,3 +388,4 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+/.idea/
