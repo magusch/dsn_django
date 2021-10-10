@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.utils import timezone
 from django.http import HttpResponse  # TODO: delete
 from django.contrib.admin.views.decorators import staff_member_required
@@ -7,6 +9,8 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post
 
 from . import utils, models
+
+from urllib.parse import urlparse
 
 
 @staff_member_required
@@ -18,7 +22,11 @@ def check_event_status(request):
 def move_approved_events(request):
     utils.move_event_to_post(EventsNotApprovedNew)
     utils.move_event_to_post(EventsNotApprovedOld)
-    return HttpResponse("Ok")
+    if request.META['REMOTE_HOST'] != '' or 'HTTP_REFERER' not in request.META:
+        response = HttpResponse('Ok')
+    else:
+        response = redirect(request.META['HTTP_REFERER'])
+    return response
 
 
 @staff_member_required
@@ -26,7 +34,11 @@ def remove_old_events(request):
     utils.delete_old_events(EventsNotApprovedNew)
     utils.delete_old_events(EventsNotApprovedOld)
     utils.delete_old_events(Events2Post)
-    return HttpResponse("Ok")
+    if request.META['REMOTE_HOST'] != '' or 'HTTP_REFERER' not in request.META:
+        response = HttpResponse('Ok')
+    else:
+        response = redirect(request.META['HTTP_REFERER'])
+    return response
 
 
 @csrf_exempt
@@ -35,16 +47,22 @@ def fill_empty_post_time(request):
     if request.method == "POST":
         print("")
         response = None
+        #utils.refresh_posting_time(request=request)
 
-    else:
+    elif request.method == "GET":
         queryset = (
             Events2Post.objects.exclude(status="Posted")
             .order_by("queue")
             .all()
         )
-        utils.refresh_posting_time(queryset=queryset)
 
-        response = HttpResponse("Ok")
+        utils.refresh_posting_time(None, request, queryset=queryset)
+        print(request.META['REMOTE_HOST'])
+        #response = HttpResponse("Ok")
+        if request.META['REMOTE_HOST']!='' or 'HTTP_REFERER' not in request.META:
+            response = HttpResponse('Ok')
+        else:
+            response = redirect(request.META['HTTP_REFERER'])
 
     return response
 
@@ -63,4 +81,8 @@ def update_all(request):
     # Delete Old events from all tables
     remove_old_events(request)
 
-    return HttpResponse("Ok")
+    if request.META['REMOTE_HOST'] != '' or 'HTTP_REFERER' not in request.META:
+        response = HttpResponse('Ok')
+    else:
+        response = redirect(request.META['HTTP_REFERER'])
+    return response

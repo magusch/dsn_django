@@ -104,6 +104,20 @@ class Events2Post(models.Model):  # Table events for posting
             f'<span style="color: {status_color[self.status]};">{self.status}</span>'
         )
 
+    def from_date_color(self):
+        if self.status=='Posted' or self.from_date<timezone.now():
+            return format_html(
+                f'<span style="color: Red;">{self.from_date.ctime()}</span>'
+            )
+        elif (self.from_date-timezone.now()).days<3:
+            return format_html(
+                f'<span style="color: Orange;">{self.from_date.ctime()}</span>'
+            )
+        else:
+            return format_html(
+                f'<span style="color: Green;">{self.from_date.ctime()}</span>'
+            )
+
     # Events2Post.objects.all().update(queue=F('queue')+1)
 
 

@@ -1,5 +1,5 @@
 from typing import Generator, List
-import datetime
+import datetime, re
 
 from django.utils import timezone
 
@@ -36,7 +36,7 @@ def _days_posting_times(time_point: datetime) -> Generator[None, List[datetime.d
         yield posting_times
 
     while True:
-        time_point += datatime.timedelta(days=1)
+        time_point += datetime.timedelta(days=1)
 
         ymd = dict(
             year=time_point.year,
@@ -65,7 +65,12 @@ def refresh_posting_time(self, request, queryset):
     queryset : list
         список с записями в таблице.
     """
-    times = _postin_times()
+    if re.match(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}', str(request.body)): #'yyyy-mm-ddThh:mm'
+        last_date = datetime.fromisoformat(str(request.body))
+    else:
+        last_date = None
+
+    times = _postin_times(last_date)
 
     for event in queryset:
         if event.post_date is None:

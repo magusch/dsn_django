@@ -9,7 +9,7 @@ from . import utils
 
 
 def open_url(obj):
-    return format_html("<a href='%s'>%s</a>" % (obj.url, obj.url))
+    return format_html("<a href='%s' target='_blank'>%s</a>" % (obj.url, obj.url))
 
 
 open_url.short_description = "URL"
@@ -46,15 +46,16 @@ class Events2PostAdmin(admin.ModelAdmin):
         "title",
         "queue",
         "post_date",
-        "status_color",
-        "from_date",
+        "from_date_color",
         open_url,
+        "status_color",
     ]
     list_filter = ["from_date", "status"]
     list_editable = ["queue", "post_date"]
     search_fields = ["title", "post"]
     actions = [
         "change_status_to_ReadyToPost",
+        "change_status_to_Posted",
         "empty_post_time",
         "change_queue",
         utils.post_date_order_by_queue,
@@ -65,6 +66,7 @@ class Events2PostAdmin(admin.ModelAdmin):
     def get_ordering(self, request):
         return ["status", "queue"]
 
+
     def change_status_to_ReadyToPost(self, request, queryset):
         updated = queryset.update(status="ReadyToPost")
         self.message_user(
@@ -72,6 +74,19 @@ class Events2PostAdmin(admin.ModelAdmin):
             ngettext(
                 "%d event was changed on ReadyToPost.",
                 "%d events were changed on ReadyToPost.",
+                updated,
+            )
+            % updated,
+            messages.SUCCESS,
+        )
+
+    def change_status_to_Posted(self, request, queryset):
+        updated = queryset.update(status="Posted")
+        self.message_user(
+            request,
+            ngettext(
+                "%d event was changed on Posted.",
+                "%d events were changed on Posted.",
                 updated,
             )
             % updated,
