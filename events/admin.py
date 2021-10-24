@@ -56,7 +56,7 @@ class Events2PostAdmin(admin.ModelAdmin):
     actions = [
         "change_status_to_ReadyToPost",
         "change_status_to_Posted",
-        "empty_post_time",
+        "clear_post_time",
         "change_queue",
         utils.post_date_order_by_queue,
         utils.refresh_posting_time,
@@ -96,7 +96,7 @@ class Events2PostAdmin(admin.ModelAdmin):
     utils.post_date_order_by_queue.acts_on_all = True
 
     # empty post_time
-    def empty_post_time(self, request, queryset):
+    def clear_post_time(self, request, queryset):
         queryset.update(post_date=None)
 
     # Change queue of events by round (1->2, 2->3, 3->1)

@@ -2,6 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.html import format_html
 
+import random
+
 
 class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
     event_id = models.CharField(max_length=30)
@@ -59,7 +61,7 @@ class EventsNotApprovedOld(models.Model):  # Table 2
         return self.to_date <= timezone.now()
 
 
-status_color = {"ReadyToPost": "green", "Posted": "red"}
+status_color = {"ReadyToPost": "green", "Posted": "red", "ForFuture":'blue'}
 
 
 def last_queue():
@@ -69,15 +71,17 @@ def last_queue():
 
 
 class Events2Post(models.Model):  # Table events for posting
-    event_id = models.CharField(max_length=30, default=f"event_{timezone.now().date()}")
+    event_id = models.CharField(max_length=30, default=f"event{random.randint(1,99)}_{timezone.now().date()}")
     queue = models.IntegerField(default=last_queue)
     title = models.CharField(max_length=500)
-    post = models.TextField(default="", blank=True)
+
+    default_post_text = "* ноября* фестиваль *«ааааа»*\n\n\n*Где:*\n*Когда:*\n*Вход:*"
+    post = models.TextField(default=default_post_text, blank=True)
     image = models.CharField(max_length=500, blank=True, null=True)
     url = models.CharField(max_length=500, blank=True)
     status = models.CharField(
         max_length=15,
-        choices=(("ReadyToPost", "Ready To Post"), ("Posted", "Posted")),
+        choices=(("ReadyToPost", "Ready To Post"), ("Posted", "Posted"), ("ForFuture", "For Future")),
         default="ReadyToPost",
     )
     price = models.CharField(max_length=150, blank=True)
@@ -105,7 +109,11 @@ class Events2Post(models.Model):  # Table events for posting
         )
 
     def from_date_color(self):
-        if self.status=='Posted' or self.from_date<timezone.now():
+        if self.status=='ForFuture':
+            return format_html(
+                f'<span style="color: Blue;">{self.from_date.ctime()}</span>'
+            )
+        elif self.status=='Posted' or self.from_date<timezone.now():
             return format_html(
                 f'<span style="color: Red;">{self.from_date.ctime()}</span>'
             )
