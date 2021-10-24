@@ -125,7 +125,7 @@ def last_post_date():
 
 
 # Move Events form not approved table to table with approved Events2Post
-def move_event_to_post(Events_model):  # ToDO: remove from here
+def move_event_to_post(Events_model):
     event2post_list = [
         "event_id",
         "title",
@@ -206,3 +206,26 @@ def empty_queryset():
 def delete_old_events(Events_model):
     today = timezone.now()
     Events_model.objects.filter(to_date__lt=today).delete()
+
+def count_events_by_day(*kwargs):
+    query_post_date_ordered = Events2Post.objects.filter(status="ReadyToPost").order_by(
+        "queue"
+    )
+    check_day = timezone.now().date()
+
+    i=0
+    posts_in_day = {}
+    for pd in query_post_date_ordered:
+        if pd.post_date.date()!=check_day:
+            posts_in_day[check_day.day] = i
+            if pd.post_date.date() == (check_day + timezone.timedelta(days=1)):
+                check_day = check_day + timezone.timedelta(days=1)
+            elif pd.post_date.date() != (check_day + timezone.timedelta(days=1)):
+                if 'wrong_queue' in posts_in_day:
+                    posts_in_day['wrong_queue'] += ", " + str(pd.queue)
+                else:
+                    posts_in_day['wrong_queue'] = str(pd.queue)
+            i = 0
+        i += 1
+    posts_in_day[check_day.day] = i
+    return posts_in_day

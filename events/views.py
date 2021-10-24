@@ -1,4 +1,4 @@
-from datetime import datetime
+import json
 
 from django.utils import timezone
 from django.http import HttpResponse  # TODO: delete
@@ -17,6 +17,10 @@ from urllib.parse import urlparse
 def check_event_status(request):
     return HttpResponse("Pass")
 
+@staff_member_required
+def count_events_by_day(request):
+    answer = json.dumps(utils.count_events_by_day())
+    return HttpResponse(answer)
 
 @staff_member_required
 def move_approved_events(request):
