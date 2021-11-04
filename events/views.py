@@ -41,9 +41,8 @@ def remove_old_events(request):
     utils.delete_old_events(EventsNotApprovedNew)
     utils.delete_old_events(EventsNotApprovedOld)
     utils.delete_old_events(Events2Post)
-    if 'REMOTE_HOST' not in request.META or 'HTTP_REFERER' not in request.META:
-        response = HttpResponse('Ok')
-    elif 'HTTP_REFERER' in request.META:
+    print(request.META)
+    if 'HTTP_REFERER' in request.META:
         response = redirect(request.META['HTTP_REFERER'])
     else:
         response = HttpResponse('Ok')
