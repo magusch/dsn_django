@@ -62,6 +62,9 @@ class Events2PostAdmin(admin.ModelAdmin):
         utils.refresh_posting_time,
     ]
     admin.ModelAdmin.save_on_top = True
+    admin.ModelAdmin.actions_on_bottom = True
+    admin.ModelAdmin.actions_selection_counter = True
+    admin.ModelAdmin.actions_selection_counter = True
 
     def get_ordering(self, request):
         return ["status", "queue"]
