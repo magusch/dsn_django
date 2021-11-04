@@ -33,6 +33,17 @@ class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
         return self.explored_date <= timezone.now() - timezone.timedelta(days=2)
 
 
+    def from_date_color(self):
+        if (self.from_date-timezone.now()).days<3:
+            return format_html(
+                f'<span style="color: Orange;">{self.from_date.ctime()}</span>'
+            )
+        else:
+            return format_html(
+                f'<span style="color: Green;">{self.from_date.ctime()}</span>'
+            )
+
+
 class EventsNotApprovedOld(models.Model):  # Table 2
     event_id = models.CharField(max_length=30)
     approved = models.BooleanField(default=False)
@@ -59,6 +70,17 @@ class EventsNotApprovedOld(models.Model):  # Table 2
 
     def was_old(self):
         return self.to_date <= timezone.now()
+
+
+    def from_date_color(self):
+        if (self.from_date-timezone.now()).days<2:
+            return format_html(
+                f'<span style="color: Orange;">{self.from_date.ctime()}</span>'
+            )
+        else:
+            return format_html(
+                f'<span style="color: Green;">{self.from_date.ctime()}</span>'
+            )
 
 
 status_color = {"ReadyToPost": "green", "Posted": "red", "ForFuture":'blue'}
