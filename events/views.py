@@ -56,13 +56,13 @@ def fill_empty_post_time(request):
 
     elif request.method == "GET":
         queryset = (
-            Events2Post.objects.exclude(status="Posted")
+            Events2Post.objects.filter(status="ReadyToPost")
             .order_by("queue")
             .all()
         )
 
         utils.refresh_posting_time(None, request, queryset=queryset)
-        #response = HttpResponse("Ok")
+
         if 'HTTP_REFERER' in request.META:
             response = redirect(request.META['HTTP_REFERER'])
         else:
@@ -85,9 +85,7 @@ def update_all(request):
     # Delete Old events from all tables
     remove_old_events(request)
 
-    if 'REMOTE_HOST' not in request.META or 'HTTP_REFERER' not in request.META:
-        response = HttpResponse('Ok')
-    elif 'HTTP_REFERER' in request.META:
+    if 'HTTP_REFERER' in request.META:
         response = redirect(request.META['HTTP_REFERER'])
     else:
         response = HttpResponse('Ok')
