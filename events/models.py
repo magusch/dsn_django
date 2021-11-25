@@ -83,7 +83,7 @@ class EventsNotApprovedOld(models.Model):  # Table 2
             )
 
 
-status_color = {"ReadyToPost": "green", "Posted": "red", "ForFuture":'blue'}
+status_color = {"ReadyToPost": "green", "Posted": "red", "ForFuture":'blue', "Spam": "red", "Scrape":"purple"}
 
 
 def last_queue():
@@ -97,13 +97,14 @@ class Events2Post(models.Model):  # Table events for posting
     queue = models.IntegerField(default=last_queue)
     title = models.CharField(max_length=500)
 
-    default_post_text = "* ноября* фестиваль *«ааааа»*\n\n\n*Где:*\n*Когда:*\n*Вход:*"
+    default_post_text = "* декабря* фестиваль *«ааааа»*\n\n*Необходим QR-код!*\n\n\n*Где:*\n*Когда:*\n*Вход:*"
     post = models.TextField(default=default_post_text, blank=True)
     image = models.CharField(max_length=500, blank=True, null=True)
     url = models.CharField(max_length=500, blank=True)
     status = models.CharField(
         max_length=15,
-        choices=(("ReadyToPost", "Ready To Post"), ("Posted", "Posted"), ("ForFuture", "For Future")),
+        choices=(("ReadyToPost", "Ready To Post"), ("Posted", "Posted"), ("ForFuture", "For Future"),
+                 ("Spam", "Spam"), ("Scrape", "Scrape It")),
         default="ReadyToPost",
     )
     price = models.CharField(max_length=150, blank=True)
@@ -113,10 +114,10 @@ class Events2Post(models.Model):  # Table events for posting
     )
     post_date = models.DateTimeField("datetime for posting", blank=True, null=True)
     from_date = models.DateTimeField(
-        "event from_date", default=(timezone.now() + timezone.timedelta(days=2))
+        "event from_date", default=(timezone.now() + timezone.timedelta(days=3))
     )
     to_date = models.DateTimeField(
-        "event to_date", default=(timezone.now() + timezone.timedelta(days=2))
+        "event to_date", default=(timezone.now() + timezone.timedelta(days=3))
     )
 
     def __str__(self):
@@ -135,9 +136,13 @@ class Events2Post(models.Model):  # Table events for posting
             return format_html(
                 f'<span style="color: Blue;">{self.from_date.ctime()}</span>'
             )
-        elif self.status=='Posted' or self.from_date<timezone.now():
+        elif self.status=='Posted' or self.status=='Spam' or self.from_date<timezone.now():
             return format_html(
                 f'<span style="color: Red;">{self.from_date.ctime()}</span>'
+            )
+        elif self.status=='Scrape':
+            return format_html(
+                f'<span style="color: Purple;">{self.from_date.ctime()}</span>'
             )
         elif (self.from_date-timezone.now()).days<3:
             return format_html(

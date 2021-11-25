@@ -110,7 +110,7 @@ def post_date_order_by_queue(*kwargs):
 
 def last_post_date():
     last_post_event = (
-        Events2Post.objects.exclude(status="Posted").order_by("-post_date").first()
+        Events2Post.objects.filter(status="ReadyToPost").order_by("-post_date").first()
     )
     if last_post_event:
         last_queue = Events2Post.objects.order_by("-queue").first().queue

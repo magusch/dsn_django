@@ -22,6 +22,7 @@ class EventsAdmin(admin.ModelAdmin):
     list_filter = ["from_date", "explored_date"]
     search_fields = ["title", "post"]
     actions = ["approve_event"]
+    ordering = ["-explored_date", "-from_date"]
 
     def approve_event(self, request, queryset):
         updated = queryset.update(approved=True)
@@ -50,7 +51,7 @@ class Events2PostAdmin(admin.ModelAdmin):
         open_url,
         "status_color",
     ]
-    list_filter = ["from_date", "status"]
+    list_filter = ["status"]
     list_editable = ["queue", "post_date"]
     search_fields = ["title", "post"]
     actions = [
@@ -126,6 +127,7 @@ class PostingTimesAdmin(admin.ModelAdmin):
 
     list_filter = ["start_weekday"]
     ordering = ["start_weekday", "posting_time_hours"]
+    list_editable = ["posting_time_hours", "posting_time_minutes"]
 
     def weekdays(self):
         if (0 <= self.start_weekday < 7) & (0 <= self.end_weekday < 7):
@@ -136,7 +138,7 @@ class PostingTimesAdmin(admin.ModelAdmin):
     def timepost(self):
         return f"{self.posting_time_hours}:{self.posting_time_minutes:02}"
 
-    list_display = [weekdays, timepost]
+    list_display = [weekdays, timepost, "posting_time_hours", "posting_time_minutes"]
 
 
 admin.site.register(EventsNotApprovedNew, EventsAdmin)
