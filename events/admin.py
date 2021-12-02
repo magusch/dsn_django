@@ -56,7 +56,7 @@ class Events2PostAdmin(admin.ModelAdmin):
     search_fields = ["title", "post"]
     actions = [
         "change_status_to_ReadyToPost",
-        "change_status_to_Posted",
+        "change_status_to_Spam",
         "clear_post_time",
         "change_queue",
         utils.post_date_order_by_queue,
@@ -84,8 +84,8 @@ class Events2PostAdmin(admin.ModelAdmin):
             messages.SUCCESS,
         )
 
-    def change_status_to_Posted(self, request, queryset):
-        updated = queryset.update(status="Posted")
+    def change_status_to_Spam(self, request, queryset):
+        updated = queryset.update(status="Spam")
         self.message_user(
             request,
             ngettext(
