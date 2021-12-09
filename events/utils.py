@@ -77,14 +77,14 @@ def refresh_posting_time(self, request, queryset):
     times = _postin_times(last_date)
 
     for event in queryset:
-        if event.post_date is None:
-            pass
-
-        else:
-            pass
+        # if event.post_date is None:
+        #     pass
+        #
+        # else:
+        #     pass
 
         last_post = (
-            Events2Post.objects.exclude(status="Posted")
+            Events2Post.objects.filter(status="ReadyToPost")
             .filter(queue__lt=event.queue)
             .order_by("-post_date")
             .first()
@@ -101,12 +101,13 @@ def refresh_posting_time(self, request, queryset):
 
 # Order by queue and change post_time in this order
 def post_date_order_by_queue(*kwargs):
-    query_post_date_ordered = Events2Post.objects.exclude(status="Posted").order_by(
+    query_post_date_ordered = Events2Post.objects.filter(status="ReadyToPost").order_by(
         "post_date"
     )
     query_post_date_ordered_list = [pd.post_date for pd in query_post_date_ordered]
-    query_queue_ordered = Events2Post.objects.exclude(status="Posted").order_by("queue")
+    query_queue_ordered = Events2Post.objects.filter(status="ReadyToPost").order_by("queue")
     for i, event in enumerate(query_queue_ordered):
+
         event.post_date = query_post_date_ordered_list[0]
         query_post_date_ordered_list.pop(0)
         event.save()
