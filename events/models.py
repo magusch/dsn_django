@@ -32,9 +32,8 @@ class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
     def was_old(self):
         return self.explored_date <= timezone.now() - timezone.timedelta(days=2)
 
-
     def from_date_color(self):
-        if (self.from_date-timezone.now()).days<3:
+        if (self.from_date - timezone.now()).days < 3:
             return format_html(
                 f'<span style="color: Orange;">{self.from_date.ctime()}</span>'
             )
@@ -71,9 +70,8 @@ class EventsNotApprovedOld(models.Model):  # Table 2
     def was_old(self):
         return self.to_date <= timezone.now()
 
-
     def from_date_color(self):
-        if (self.from_date-timezone.now()).days<2:
+        if (self.from_date - timezone.now()).days < 2:
             return format_html(
                 f'<span style="color: Orange;">{self.from_date.ctime()}</span>'
             )
@@ -83,7 +81,7 @@ class EventsNotApprovedOld(models.Model):  # Table 2
             )
 
 
-status_color = {"ReadyToPost": "green", "Posted": "red", "ForFuture":'blue', "Spam": "red", "Scrape":"purple"}
+status_color = {"ReadyToPost": "green", "Posted": "red", "ForFuture": 'blue', "Spam": "red", "Scrape": "purple"}
 
 
 def last_queue():
@@ -92,12 +90,20 @@ def last_queue():
         return q.queue + 2
 
 
+monthes = ['января', 'февраля', "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
+           "декабря"]
+
+
 class Events2Post(models.Model):  # Table events for posting
-    event_id = models.CharField(max_length=30, default=f"event{random.randint(1,99)}_{timezone.now().date()}")
+    event_id = models.CharField(max_length=30, default=f"event{random.randint(1, 99)}_{timezone.now().date()}")
     queue = models.IntegerField(default=last_queue)
     title = models.CharField(max_length=500)
 
-    default_post_text = "* декабря* фестиваль *«ааааа»*\n\n*Необходим QR-код!*\n\n\n*Где:*\n*Когда:*\n*Вход:*"
+    default_events_date = timezone.now() + timezone.timedelta(days=3)
+
+    month = monthes[default_events_date.month - 1]
+
+    default_post_text = f"* {month}*  фестиваль *«ааааа»*\n\n\n\n*Необходим QR-код!*\n\n*Где:*\n*Когда:*\n*Вход:*"
     post = models.TextField(default=default_post_text, blank=True)
     image = models.CharField(max_length=500, blank=True, null=True)
     url = models.CharField(max_length=500, blank=True)
@@ -114,10 +120,10 @@ class Events2Post(models.Model):  # Table events for posting
     )
     post_date = models.DateTimeField("datetime for posting", blank=True, null=True)
     from_date = models.DateTimeField(
-        "event from_date", default=(timezone.now() + timezone.timedelta(days=3))
+        "event from_date", default=default_events_date
     )
     to_date = models.DateTimeField(
-        "event to_date", default=(timezone.now() + timezone.timedelta(days=3))
+        "event to_date", default=default_events_date
     )
 
     def __str__(self):
@@ -132,19 +138,19 @@ class Events2Post(models.Model):  # Table events for posting
         )
 
     def from_date_color(self):
-        if self.status=='ForFuture':
+        if self.status == 'ForFuture':
             return format_html(
                 f'<span style="color: Blue;">{self.from_date.ctime()}</span>'
             )
-        elif self.status=='Posted' or self.status=='Spam' or self.from_date<timezone.now():
+        elif self.status == 'Posted' or self.status == 'Spam' or self.from_date < timezone.now():
             return format_html(
                 f'<span style="color: Red;">{self.from_date.ctime()}</span>'
             )
-        elif self.status=='Scrape':
+        elif self.status == 'Scrape':
             return format_html(
                 f'<span style="color: Purple;">{self.from_date.ctime()}</span>'
             )
-        elif (self.from_date-timezone.now()).days<3:
+        elif (self.from_date - timezone.now()).days < 3:
             return format_html(
                 f'<span style="color: Orange;">{self.from_date.ctime()}</span>'
             )
@@ -173,7 +179,6 @@ class PostingTime(models.Model):
             )
             return posting
         return f"{self.posting_time_hours}:{self.posting_time_minutes}"
-
 
 # class Events(models.Model):
 #     event_id = models.IntegerField()
