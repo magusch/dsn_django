@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django.utils.translation import ngettext
 from django.utils.html import format_html
 
-from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime
+from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime, Parameter
 
 from django.urls import reverse_lazy
 from . import utils
@@ -141,7 +141,21 @@ class PostingTimesAdmin(admin.ModelAdmin):
     list_display = [weekdays, timepost, "posting_time_hours", "posting_time_minutes"]
 
 
+class ParametersAdmin(admin.ModelAdmin):
+    list_display = ['site', 'parameter_name', 'value', 'commentary']
+    list_editable = ['value', 'commentary']
+    actions = ["copy",]
+
+    def copy(self, request, queryset):
+        for object in queryset:
+            print(object)
+            object.id = None
+            object.save()
+    copy.short_description = "Duplicate selected record"
+
+
 admin.site.register(EventsNotApprovedNew, EventsAdmin)
 admin.site.register(EventsNotApprovedOld, EventsAdmin)
 admin.site.register(PostingTime, PostingTimesAdmin)
 admin.site.register(Events2Post, Events2PostAdmin)
+admin.site.register(Parameter, ParametersAdmin)

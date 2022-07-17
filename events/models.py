@@ -180,6 +180,15 @@ class PostingTime(models.Model):
             return posting
         return f"{self.posting_time_hours}:{self.posting_time_minutes}"
 
+
+class Parameter(models.Model):  # Table events for posting
+    site = models.CharField(max_length=500)
+    parameter_name = models.CharField(max_length=500)
+    value = models.CharField(max_length=500)
+    commentary = models.CharField(max_length=500, null=True)
+    def __str__(self):
+        return (self.site + self.parameter_name)
+
 # class Events(models.Model):
 #     event_id = models.IntegerField()
 #     title = models.CharField(max_length=250)

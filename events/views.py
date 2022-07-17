@@ -6,7 +6,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post
+from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Parameter
 
 from . import utils, models
 
@@ -91,3 +91,21 @@ def update_all(request):
         response = HttpResponse('Ok')
 
     return response
+
+
+@csrf_exempt
+@staff_member_required
+def get_parameters(request):
+    if request.method == "GET":
+        prms = Parameter.objects
+
+        if 'site' in request.GET:
+            prms = prms.filter(site=request.GET['site'])
+
+        if 'name' in request.GET:
+            prms = prms.filter(parameter_name=request.GET['name'])
+
+        params_in_db = []
+        for row in prms.values():
+            params_in_db.append(row)
+        return HttpResponse(json.dumps(params_in_db))

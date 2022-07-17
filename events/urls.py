@@ -10,4 +10,5 @@ urlpatterns = [
     path("remove_old_events/", views.remove_old_events, name="remove_old_events"),
     path("fill_empty_post_time/", views.fill_empty_post_time, name="fill_empty_post_time"),
     path("update_all/", views.update_all, name="update_all"),
+    path("parameters_for_channel/", views.get_parameters, name="parameters_for_channel"),
 ]
