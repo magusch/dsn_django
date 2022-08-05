@@ -103,7 +103,7 @@ class Events2Post(models.Model):  # Table events for posting
 
     month = monthes[default_events_date.month - 1]
 
-    default_post_text = f"* {month}*  фестиваль *«ааааа»*\n\n\n\n*Необходим QR-код!*\n\n*Где:*\n*Когда:*\n*Вход:*"
+    default_post_text = f"* {month}*  фестиваль *«ааааа»*\n\n\n\n*Где:*\n*Когда:*\n*Вход:*"
     post = models.TextField(default=default_post_text, blank=True)
     image = models.CharField(max_length=500, blank=True, null=True)
     url = models.CharField(max_length=500, blank=True)
