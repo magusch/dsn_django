@@ -2,8 +2,27 @@ version: '3.8'
 services:
    web:
        build: .
-       command: gunicorn --bind :8000 --workers 3 dsn_django.wsgi:application
+       expose:
+         - "8000"
+       env_file: .env
+       environment:
+        DEBUG: 'true'
        volumes:
-         - /:/dsn_django/static
+         - web-django:/usr/src/app
+         - web-static:/usr/src/app/static
        ports:
            - 8000:8000
+       command: gunicorn --bind :8000 --workers 3 dsn_django.wsgi:application
+
+   nginx:
+     restart: always
+     build: ./nginx/
+     ports:
+       - "8080:8080"
+     volumes:
+       - web-static:/www/static
+     links:
+       - web:web
+volumes:
+  web-django:
+  web-static:
