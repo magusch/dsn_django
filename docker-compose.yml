@@ -9,7 +9,6 @@ services:
         DEBUG: 'false'
        volumes:
          - web-static:/dsn_django/static/
-         - web-volume:/dsn_django/static/
        ports:
            - "8000:8000"
        command: gunicorn --bind :8000 --workers 3 dsn_django.wsgi:application
@@ -23,7 +22,6 @@ services:
        - "8080:8080"
      volumes:
        - web-static:/dsn_django/static/
-       - web-volume:/dsn_django/static/
      links:
        - web:web
      networks:
@@ -33,5 +31,4 @@ networks:
     name: django-network
 
 volumes:
-  web-volume:
   web-static:
