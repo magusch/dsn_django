@@ -1,5 +1,4 @@
-FROM tutum/nginx
-
-RUN rm /etc/nginx/sites-enabled/default
-
-COPY sites-enabled/ /etc/nginx/sites-enabled
+FROM nginx:stable-alpine
+COPY default.conf /etc/nginx
+COPY default.conf /etc/nginx/conf.d
+EXPOSE 8080
