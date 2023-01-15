@@ -1,9 +1,11 @@
 import json
 
+import markdown
+
 from django.utils import timezone
 from django.http import HttpResponse  # TODO: delete
 from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Parameter
@@ -12,6 +14,11 @@ from . import utils, models
 
 from urllib.parse import urlparse
 
+def event_post_html(request, event_id):
+    event = get_object_or_404(Events2Post, pk=event_id)
+    image = f"<img src='{event.image}'>"
+    html = image + markdown.markdown(event.post)
+    return HttpResponse(html)
 
 @staff_member_required
 def check_event_status(request):
@@ -109,3 +116,14 @@ def get_parameters(request):
         for row in prms.values():
             params_in_db.append(row)
         return HttpResponse(json.dumps(params_in_db))
+
+# From post text to html
+@staff_member_required
+def markdown_to_html(request):
+    #print(request)
+    html = ''
+    if request.method == "POST":
+        print("POST")
+        if 'text' in request.GET:
+            html = markdown.markdown(request.GET['text'])
+    return HttpResponse(html)

@@ -2,6 +2,8 @@ from django.contrib import admin, messages
 from django.utils.translation import ngettext
 from django.utils.html import format_html
 
+import markdown
+
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime, Parameter
 
 from django.urls import reverse_lazy
@@ -66,6 +68,30 @@ class Events2PostAdmin(admin.ModelAdmin):
     admin.ModelAdmin.actions_on_bottom = True
     admin.ModelAdmin.actions_selection_counter = True
     admin.ModelAdmin.actions_selection_counter = True
+    readonly_fields = ('ready_post',)
+    include = ( 'ready_post')
+
+    class Media:
+        js = ("js/post_to_markdown.js"
+            ,'admin/js/post_to_markdown.js',
+              "post_to_markdown.js")
+
+    def markdown_post_view(self, instance):
+        html_image = f"<img src='{instance.image}' width='100%'>"
+        html_post = markdown.markdown(instance.post
+                                      .replace('*','**')
+                                      .replace("\n", "<br>")
+                                      .replace('_','*')
+                                      )
+        return format_html(html_image+html_post)
+
+    def ready_post(self, instance):
+        html_image = f"<img src='{instance.image}' width='100%'>"
+        html_code = """
+        <a type="markdown_post">Send Request</a>
+        <div id='output'> Hey </div>
+        """
+        return format_html(html_image+html_code)
 
     def get_ordering(self, request):
         return ["status", "queue"]
