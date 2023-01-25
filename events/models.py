@@ -1,6 +1,10 @@
+import re
+
 from django.db import models
 from django.utils import timezone
 from django.utils.html import format_html
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 import random
 
@@ -158,6 +162,26 @@ class Events2Post(models.Model):  # Table events for posting
             return format_html(
                 f'<span style="color: Green;">{self.from_date.ctime()}</span>'
             )
+    def clean(self):
+        error_message = ''
+        # post size validation
+        maximum_characters = 2000
+
+        if len(self.post) > maximum_characters:
+            error_message += f"Post text is too biig. It has {len(self.post)} characters " \
+                             f"but it should have a maximum of {maximum_characters}"
+
+        asterisk_len = len(re.findall("\*",self.post))  # how many asterisk in the post
+        underscore_len = len(re.findall("\_", self.post))  # how many underscore in the post
+
+        if asterisk_len % 2 != 0:
+            error_message += f"The Post has odd number ({asterisk_len}) of * .\n"
+        if underscore_len % 2 != 0:
+            error_message += f"The Post has odd number ({underscore_len}) of _ .\n"
+
+
+        if error_message != '':
+            raise ValidationError(_(error_message))
 
     # Events2Post.objects.all().update(queue=F('queue')+1)
 
