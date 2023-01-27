@@ -120,10 +120,11 @@ def get_parameters(request):
 # From post text to html
 @staff_member_required
 def markdown_to_html(request):
-    #print(request)
     html = ''
     if request.method == "POST":
-        print("POST")
+        if 'text' in request.POST:
+            html = markdown.markdown(request.POST['text'])
+    if request.method == "GET":
         if 'text' in request.GET:
             html = markdown.markdown(request.GET['text'])
     return HttpResponse(html)

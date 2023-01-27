@@ -68,8 +68,8 @@ class Events2PostAdmin(admin.ModelAdmin):
     admin.ModelAdmin.actions_on_bottom = True
     admin.ModelAdmin.actions_selection_counter = True
     admin.ModelAdmin.actions_selection_counter = True
-    readonly_fields = ('ready_post',)
-    include = ( 'ready_post')
+    readonly_fields = ('markdown_post_view',)
+    include = ( 'markdown_post_view')
 
     class Media:
         js = ("js/post_to_markdown.js"
@@ -77,21 +77,21 @@ class Events2PostAdmin(admin.ModelAdmin):
               "post_to_markdown.js")
 
     def markdown_post_view(self, instance):
-        html_image = f"<img src='{instance.image}' width='100%'>"
+        html_image = f"<div style='width:325px;'><img src='{instance.image}' width='325px'>"
         html_post = markdown.markdown(instance.post
                                       .replace('*','**')
                                       .replace("\n", "<br>")
                                       .replace('_','*')
                                       )
-        return format_html(html_image+html_post)
+        return format_html(html_image+html_post + '</div>')
 
-    def ready_post(self, instance):
-        html_image = f"<img src='{instance.image}' width='100%'>"
-        html_code = """
-        <a type="markdown_post">Send Request</a>
-        <div id='output'> Hey </div>
-        """
-        return format_html(html_image+html_code)
+    # def ready_post(self, instance):
+    #     html_image = f"<img src='{instance.image}' width='100%'>"
+    #     html_code = """
+    #     <a type="markdown_post" id="markdown_post" href="javascript:markdown_to()">Send Request</a>
+    #     <div id='output'> Hey </div>
+    #     """
+    #     return format_html(html_image+html_code)
 
     def get_ordering(self, request):
         return ["status", "queue"]
