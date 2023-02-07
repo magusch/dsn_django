@@ -68,8 +68,8 @@ class Events2PostAdmin(admin.ModelAdmin):
     admin.ModelAdmin.actions_on_bottom = True
     admin.ModelAdmin.actions_selection_counter = True
     admin.ModelAdmin.actions_selection_counter = True
-    readonly_fields = ('markdown_post_view',)
-    include = ( 'markdown_post_view')
+    readonly_fields = ("markdown_post_view_model",)
+    include = ( "markdown_post_view_model")
 
     class Media:
         js = ("js/post_to_markdown.js"
