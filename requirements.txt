@@ -4,4 +4,6 @@ django-connection-url==0.1.2
 psycopg2==2.9.3
 requests==2.25.1
 gunicorn==19.9.0
-whitenoise
+whitenoise==6.2.0
+Markdown==3.4.1
+
