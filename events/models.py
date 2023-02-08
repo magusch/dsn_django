@@ -182,13 +182,13 @@ class Events2Post(models.Model):  # Table events for posting
             error_message += f"Post text is too biig. It has {len(self.post)} characters " \
                              f"but it should have a maximum of {maximum_characters}"
 
-        asterisk_len = len(re.findall("\*",self.post))  # how many asterisk in the post
-        underscore_len = len(re.findall("\_", self.post))  # how many underscore in the post
+        # asterisk_len = len(re.findall("\*",self.post))  # how many asterisk in the post
+        # if asterisk_len % 2 != 0:
+        #     error_message += f"The Post has odd number ({asterisk_len}) of * .\n"
 
-        if asterisk_len % 2 != 0:
-            error_message += f"The Post has odd number ({asterisk_len}) of * .\n"
-        if underscore_len % 2 != 0:
-            error_message += f"The Post has odd number ({underscore_len}) of _ .\n"
+        # underscore_len = len(re.findall("\_", self.post))  # how many underscore in the post
+        # if underscore_len % 2 != 0:
+        #     error_message += f"The Post has odd number ({underscore_len}) of _ .\n"
 
 
         if error_message != '':
