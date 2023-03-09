@@ -13,4 +13,5 @@ urlpatterns = [
     path("parameters_for_channel/", views.get_parameters, name="parameters_for_channel"),
     path("<int:event_id>", views.event_post_html, name="event_post_html"),
     path("markdown_to_html/", views.markdown_to_html, name="markdown_to_html"),
+    path("", views.all_events, name="all_events"),
 ]
