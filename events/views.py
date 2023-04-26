@@ -7,6 +7,7 @@ from django.http import HttpResponse  # TODO: delete
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.template import loader
 
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Parameter
 
@@ -16,9 +17,18 @@ from urllib.parse import urlparse
 
 def event_post_html(request, event_id):
     event = get_object_or_404(Events2Post, pk=event_id)
-    image = f"<img src='{event.image}'>"
-    html = image + markdown.markdown(event.post)
-    return HttpResponse(html)
+    # image = f"<img src='{event.image}'>"
+    # html = image + markdown.markdown(event.post)
+    return HttpResponse(event.markdown_post_view_model())
+
+def all_events(request):
+    all_events = Events2Post.objects.filter(status="Posted")
+    template = loader.get_template('index.html')
+    context = {
+        'all_events': all_events,
+    }
+    return HttpResponse(template.render(context, request))
+
 
 @staff_member_required
 def check_event_status(request):

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Давай с нами – Мероприятия</title>
+</head>
+<body>
+{% for event in all_events.all %}
+    <a href="{{ event.id }}">{{ event.title }}</a>
+    {{ event.markdown_post_view_model }}
+{% endfor %}
+</body>
+</html>

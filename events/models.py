@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 import random
 
+import markdown
 
 class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
     event_id = models.CharField(max_length=30)
@@ -162,6 +163,16 @@ class Events2Post(models.Model):  # Table events for posting
             return format_html(
                 f'<span style="color: Green;">{self.from_date.ctime()}</span>'
             )
+
+    def markdown_post_view_model(self):
+        html_image = f"<div id='markdown_post' style='width:325px;'><img src='{self.image}' width='325px'>"
+        html_post = markdown.markdown(self.post
+                                      .replace('*','**')
+                                      .replace("\n", "<br>")
+                                      .replace('_','*')
+                                      )
+        return format_html(html_image+html_post + '</div>')
+
     def clean(self):
         error_message = ''
         # post size validation
@@ -172,10 +183,12 @@ class Events2Post(models.Model):  # Table events for posting
                              f"but it should have a maximum of {maximum_characters}"
 
         # asterisk_len = len(re.findall("\*",self.post))  # how many asterisk in the post
+
         # underscore_len = len(re.findall("\_", self.post))  # how many underscore in the post
         #
         # if asterisk_len % 2 != 0:
         #     error_message += f"The Post has odd number ({asterisk_len}) of * .\n"
+
         # if underscore_len % 2 != 0:
         #     error_message += f"The Post has odd number ({underscore_len}) of _ .\n"
 
