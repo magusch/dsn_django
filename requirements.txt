@@ -6,4 +6,3 @@ requests==2.25.1
 gunicorn==19.9.0
 whitenoise==6.2.0
 Markdown==3.4.1
-
