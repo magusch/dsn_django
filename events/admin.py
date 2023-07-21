@@ -45,6 +45,7 @@ class EventsAdmin(admin.ModelAdmin):
 
 class Events2PostAdmin(admin.ModelAdmin):
     change_list_template = "events/change_list_approved.html"
+    change_form_template = "events/change_form_event_2_post.html"
     list_display = [
         "title",
         "queue",
