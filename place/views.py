@@ -28,7 +28,7 @@ def place_address(request):
             address.update({
                 "response_code": 200,
                 "address": place.place.place_name,
-                "address_for_post": f"[{place.place.place_name}, {place.place.place_address}]({place.place.url_to_address}), м.{place.place.place_metro}"
+                "address_for_post": f"{place.place.markdown_address()}"
             })
         else:
             address.update({
