@@ -17,6 +17,24 @@ def open_url(obj):
 open_url.short_description = "URL"
 
 
+def custom_fieldsets(model, custom_fields,):
+    default_fields = []
+    for i in model._meta.get_fields():
+        if i.name in ['id', *custom_fields]:
+            continue
+        default_fields.append(i.name)
+
+    fieldsets = (
+        ('Custom Fields', {
+            'fields': custom_fields,
+        }),
+        ('Other Fields', {
+            'fields': default_fields,
+        }),
+    )
+    return fieldsets
+
+
 class EventsAdmin(admin.ModelAdmin):
     change_list_template = "events/change_list_not_approved.html"
 
@@ -68,8 +86,11 @@ class Events2PostAdmin(admin.ModelAdmin):
     admin.ModelAdmin.actions_on_bottom = True
     admin.ModelAdmin.actions_selection_counter = True
     admin.ModelAdmin.actions_selection_counter = True
-    readonly_fields = ("markdown_post_view_model",)
-    include = ( "markdown_post_view_model")
+    readonly_fields = ("markdown_post_view_model", "address_markdown")
+    include = ( "markdown_post_view_model", "address_markdown")
+
+    fieldsets = custom_fieldsets(Events2Post, ('event_id', 'title', 'markdown_post_view_model',
+                                                        'place','address_markdown',))
 
     class Media:
         js = ("js/post_to_markdown.js"
