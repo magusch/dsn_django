@@ -53,6 +53,7 @@ class Events2PostAdmin(admin.ModelAdmin):
         open_url,
         "status_color",
     ]
+    exclude = ["full_text"]
     list_filter = ["status"]
     list_editable = ["queue", "post_date"]
     search_fields = ["title", "post"]
