@@ -43,7 +43,7 @@ class PostHelper:
         if self.event.full_text is None:
             post_text = self.event.post
         else:
-            post_text = self.event.full_text
+            post_text = self.reduce_text(self.event.full_text)
 
         post_text = (
             post_text.strip()
@@ -155,4 +155,17 @@ class PostHelper:
             start_format = f"{s_weekday}, {s_day} {s_month} {s_hour:02}:{s_minute:02}"
 
         return start_format + end_format
+
+    def reduce_text(self):
+        full_text = self.event.full_text
+        if len(full_text) > 550:
+            sentences = full_text.split(".")
+            post = ""
+            for s in sentences:
+                if len(post) < 365:
+                    post = post + s + "."
+                else:
+                    post_text = post
+                    break
+        return post_text
 
