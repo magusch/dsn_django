@@ -64,7 +64,7 @@ class Events2PostAdmin(admin.ModelAdmin):
         "change_status_to_Spam",
         "clear_post_time",
         "change_queue",
-        'update_post_for_posting',
+        'update_post_text_for_posting',
         utils.post_date_order_by_queue,
         utils.refresh_posting_time,
     ]
@@ -185,7 +185,6 @@ class ParametersAdmin(admin.ModelAdmin):
 
     def copy(self, request, queryset):
         for object in queryset:
-            print(object)
             object.id = None
             object.save()
     copy.short_description = "Duplicate selected record"
