@@ -5,15 +5,14 @@ from django.utils import timezone
 
 from .models import Events2Post, PostingTime
 
+from .helper.post_helper import PostHelper
+
 current_tz = timezone.get_current_timezone()
 
 current_tz_int = (
     timezone.get_default_timezone().normalize(timezone.now()).hour - timezone.now().hour
 )
 if current_tz_int<0: current_tz_int=24+current_tz_int
-
-
-
 
 def _is_weekday(dt: datetime.datetime) -> bool:
     return dt.weekday() in [0, 1, 2, 3, 4]
@@ -135,6 +134,7 @@ def move_event_to_post(Events_model):
         "event_id",
         "title",
         "post",
+        "full_text",
         "image",
         "url",
         "price",
@@ -147,7 +147,22 @@ def move_event_to_post(Events_model):
     events = Events_model.objects.filter(approved=True)
 
     post_date, queue = last_post_date()
+
+    # making post text in transfer proccess
+    # for event in events:
+    #     event.full_text = PostHelper(event)._post_markdown()
+    #     event_attributes = event.__dict__.copy()
+    #     event_attributes.pop("_state")
+    #     event_attributes.pop("approved")
+    #     event_attributes.pop("id")
+    #
+    #     Events2Post.objects.create(
+    #         status="ReadyToPost", post_date=post_date, queue=queue, **event_attributes
+    #     )
+    #     post_date, queue = last_post_date()
+
     for event in events.values(*event2post_list):
+        event['full_text'] = PostHelper(event)._post_markdown()
         Events2Post.objects.create(
             status="ReadyToPost", post_date=post_date, queue=queue, **event
         )
