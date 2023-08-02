@@ -5,9 +5,8 @@ import json
 # from django.shortcuts import redirect
 from django.http import HttpResponse
 
-from django.db.models import F, Value, CharField
 
-from .models import PlaceKeyword
+from . import utils
 
 #@staff_member_required
 def place_address(request):
@@ -21,8 +20,7 @@ def place_address(request):
     address = {"raw_address": raw_address}
 
     if raw_address:
-        place_by_keywords = PlaceKeyword.objects.annotate(querystring=Value(raw_address.lower(), output_field=CharField())) \
-             .filter(querystring__icontains=F('place_keyword'))
+        place_by_keywords = utils.address_from_places(raw_address)
         if place_by_keywords:
             place = place_by_keywords[0]
             address.update({
