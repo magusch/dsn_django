@@ -16,6 +16,5 @@ urlpatterns = [
     path("markdown_all_events/", views.all_events, name="all_events"),
 
     path("", views.event_list, name="event_list"),
-    #path("<int:id>", views.event_full, name="event_full"),
     path("<int:id>", views.event_full, name="event_full"),
 ]
