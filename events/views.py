@@ -39,6 +39,15 @@ def event_list(request):
     return HttpResponse(template.render(context, request))
 
 
+def event_full(request, id):
+    event = get_object_or_404(Event, pk=id)
+    template = loader.get_template('events/event_full.html')
+    context = {
+        'event': event
+    }
+    return HttpResponse(template.render(context, request))
+
+
 @staff_member_required
 def check_event_status(request):
     return HttpResponse("Pass")
