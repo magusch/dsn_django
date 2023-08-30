@@ -14,7 +14,6 @@ class PostHelper:
         self.dates_to_right_tz()
 
 
-
     def dates_to_right_tz(self):
         self.event.from_date = self.event.from_date.astimezone(self.TIMEZONE)
         self.event.to_date = self.event.to_date.astimezone(self.TIMEZONE)
@@ -43,7 +42,7 @@ class PostHelper:
         if self.event.full_text is None:
             post_text = self.event.post
         else:
-            post_text = self.reduce_text(self.event.full_text)
+            post_text = self.reduce_text()
 
         post_text = (
             post_text.strip()
@@ -157,13 +156,13 @@ class PostHelper:
         return start_format + end_format
 
     def reduce_text(self):
-        full_text = self.event.full_text
-        if len(full_text) > 550:
-            sentences = full_text.split(".")
+        post_text = self.event.full_text
+        if len(post_text) > 550:
+            sentences = post_text.split(".")
             post = ""
             for s in sentences:
                 if len(post) < 365:
-                    post = post + s + "."
+                    post_text = post + s + "."
                 else:
                     post_text = post
                     break

@@ -239,18 +239,24 @@ class Parameter(models.Model):  # Table events for posting
     def __str__(self):
         return (self.site + self.parameter_name)
 
-# class Events(models.Model):
-#     event_id = models.IntegerField()
-#     title = models.CharField(max_length=250)
-#     post = models.TextField(default='', blank=True)
-#     price = models.CharField(max_length=150, blank=True)
-#     address = models.CharField(max_length=200, blank=True)
-#     from_date = models.DateTimeField('event from_date')
-#     to_date = models.DateTimeField('event to_date')
-#     pub_datetime = models.DateTimeField('published date and time', default=timezone.now)
-#
-#     def __str__(self):
-#         return self.title
-#
-#     def was_published_recently(self):
-#         return self.pub_datetime >= timezone.now() - datetime.timedelta(days=1)
+
+class Event(models.Model):
+    event_id = models.CharField(max_length=30, default=random_event_id)
+    title = models.CharField(max_length=500)
+    post = models.TextField(default="", blank=True)
+    full_text = models.TextField(default="", blank=True, null=True)
+    image = models.CharField(max_length=500, blank=True, null=True)
+    url = models.CharField(max_length=500, blank=True)
+    price = models.CharField(max_length=150, blank=True, null=True)
+    address = models.CharField(max_length=500, blank=True, null=True)
+    place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
+    #category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+
+    pub_datetime = models.DateTimeField('published date and time', default=timezone.now)
+    from_date = models.DateTimeField("event from_date", default=default_event_date)
+    to_date = models.DateTimeField("event to_date", default=default_event_date)
+
+
+    def __str__(self):
+        return self.title
+

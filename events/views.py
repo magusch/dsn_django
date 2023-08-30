@@ -9,7 +9,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.template import loader
 
-from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Parameter
+from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Parameter, Event
 
 from . import utils, models
 
@@ -26,6 +26,15 @@ def all_events(request):
     template = loader.get_template('index.html')
     context = {
         'all_events': all_events,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def event_list(request):
+    events = Event.objects.all()
+    template = loader.get_template('events/event_list.html')
+    context = {
+        'events': events
     }
     return HttpResponse(template.render(context, request))
 
