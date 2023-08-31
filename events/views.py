@@ -68,6 +68,16 @@ def move_approved_events(request):
 
     return response
 
+@staff_member_required
+def transfer_posted_events_to_site(request):
+    utils.move_event_to_site(Events2Post)
+    if 'HTTP_REFERER' in request.META:
+        response = redirect(request.META['HTTP_REFERER'])
+    else:
+        response = HttpResponse('Ok')
+
+    return response
+
 
 @staff_member_required
 def remove_old_events(request):
