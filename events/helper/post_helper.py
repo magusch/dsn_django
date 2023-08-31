@@ -66,7 +66,7 @@ class PostHelper:
         raw_address = self.event.address #f"{self.event.place_name}, {self.event.adress}"
         addresses = address_from_places(raw_address)
 
-        if addresses:
+        if addresses and hasattr(self.event, 'place_id'):
             if self.event.place_id is None:
                 self.event.place_id = addresses[0].place.id
             address_line = self.event.place.markdown_address()

@@ -12,6 +12,7 @@ import markdown
 
 from place.models import Place
 
+
 class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
     event_id = models.CharField(max_length=30)
     approved = models.BooleanField(default=False, blank=True)
@@ -22,6 +23,7 @@ class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
     url = models.CharField(max_length=500, blank=True)
     price = models.CharField(max_length=500, blank=True)
     address = models.CharField(max_length=500, blank=True)
+    place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
     explored_date = models.DateTimeField(
         "published date and time",
     )
@@ -60,6 +62,7 @@ class EventsNotApprovedOld(models.Model):  # Table 2
     url = models.CharField(max_length=500, blank=True)
     price = models.CharField(max_length=500, blank=True)
     address = models.CharField(max_length=500, blank=True)
+    place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
     explored_date = models.DateTimeField(
         "published date and time",
     )
@@ -103,6 +106,7 @@ monthes = ['января', 'февраля', "марта", "апреля", "ма
 
 def random_event_id():
     return f"event{random.randint(1, 99)}_{timezone.now().date()}"
+
 
 def default_event_date():
     return timezone.now() + timezone.timedelta(days=3)
@@ -236,6 +240,7 @@ class Parameter(models.Model):  # Table events for posting
     parameter_name = models.CharField(max_length=500)
     value = models.CharField(max_length=500)
     commentary = models.CharField(max_length=500, null=True)
+
     def __str__(self):
         return (self.site + self.parameter_name)
 
@@ -255,7 +260,6 @@ class Event(models.Model):
     pub_datetime = models.DateTimeField('published date and time', default=timezone.now)
     from_date = models.DateTimeField("event from_date", default=default_event_date)
     to_date = models.DateTimeField("event to_date", default=default_event_date)
-
 
     def __str__(self):
         return self.title

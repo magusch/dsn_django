@@ -146,7 +146,7 @@ class Events2PostAdmin(admin.ModelAdmin):
 
         for event in events:
             new_post_text = PostHelper(event)._post_markdown()
-            event.full_text = new_post_text
+            event.post = new_post_text
             event.save()
 
 
