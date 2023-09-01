@@ -10,6 +10,8 @@ import random
 
 import markdown
 
+from place.models import Place
+
 class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
     event_id = models.CharField(max_length=30)
     approved = models.BooleanField(default=False, blank=True)
@@ -120,6 +122,8 @@ class Events2Post(models.Model):  # Table events for posting
     )
     price = models.CharField(max_length=150, blank=True)
     address = models.CharField(max_length=500, blank=True)
+
+    place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
     explored_date = models.DateTimeField(
         "published date and time", default=timezone.now
     )
@@ -172,6 +176,9 @@ class Events2Post(models.Model):  # Table events for posting
                                       .replace('_','*')
                                       )
         return format_html(html_image+html_post + '</div>')
+
+    def address_markdown(self):
+        return self.place.markdown_address()
 
     def clean(self):
         error_message = ''
