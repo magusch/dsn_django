@@ -2,8 +2,9 @@ from typing import Generator, List
 import datetime, re
 
 from django.utils import timezone
+from django.forms.models import model_to_dict
 
-from .models import Events2Post, PostingTime
+from .models import Events2Post, PostingTime, Event
 
 from .helper.post_helper import PostHelper
 
@@ -161,13 +162,44 @@ def move_event_to_post(Events_model):
     #     )
     #     post_date, queue = last_post_date()
 
-    for event in events.values(*event2post_list):
-        event['full_text'] = PostHelper(event)._post_markdown()
+    for event in events:
+        event_full_text = PostHelper(event)._post_markdown()
+
+        event_dict = model_to_dict(event, fields=event2post_list)
+        event_dict['full_text'] = event_full_text
         Events2Post.objects.create(
-            status="ReadyToPost", post_date=post_date, queue=queue, **event
+            status="ReadyToPost", post_date=post_date, queue=queue, **event_dict
         )
         post_date, queue = last_post_date()
+
     events.delete()
+
+
+def move_event_to_site(events_model):
+    event2post_list = [
+        "event_id",
+        "title",
+        "post",
+        "full_text",
+        "image",
+        "url",
+        "price",
+        "address",
+        #"place",
+        "from_date",
+        "to_date",
+    ]
+
+    existed_site_events = Event.objects.values("event_id")
+    events = events_model.objects.filter(status="Posted").exclude(event_id__in=existed_site_events)
+    pub_datetime = timezone.now()
+    event_count = events.count()
+    for event in events.values(*event2post_list):
+        Event.objects.create(
+            pub_datetime=pub_datetime, **event
+        )
+
+    return event_count
 
 
 def good_post_time(last_post_time):

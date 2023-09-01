@@ -9,7 +9,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.template import loader
 
-from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Parameter
+from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Parameter, Event
 
 from . import utils, models
 
@@ -30,6 +30,24 @@ def all_events(request):
     return HttpResponse(template.render(context, request))
 
 
+def event_list(request):
+    events = Event.objects.all()
+    template = loader.get_template('events/event_list.html')
+    context = {
+        'events': events
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def event_full(request, id):
+    event = get_object_or_404(Event, pk=id)
+    template = loader.get_template('events/event_full.html')
+    context = {
+        'event': event
+    }
+    return HttpResponse(template.render(context, request))
+
+
 @staff_member_required
 def check_event_status(request):
     return HttpResponse("Pass")
@@ -43,6 +61,16 @@ def count_events_by_day(request):
 def move_approved_events(request):
     utils.move_event_to_post(EventsNotApprovedNew)
     utils.move_event_to_post(EventsNotApprovedOld)
+    if 'HTTP_REFERER' in request.META:
+        response = redirect(request.META['HTTP_REFERER'])
+    else:
+        response = HttpResponse('Ok')
+
+    return response
+
+@staff_member_required
+def transfer_posted_events_to_site(request):
+    utils.move_event_to_site(Events2Post)
     if 'HTTP_REFERER' in request.META:
         response = redirect(request.META['HTTP_REFERER'])
     else:

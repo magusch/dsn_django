@@ -4,9 +4,9 @@ from django.utils.html import format_html
 
 import markdown
 
-from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime, Parameter
+from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime, Parameter, Event
 
-from django.urls import reverse_lazy
+
 from . import utils
 
 from .helper.post_helper import PostHelper
@@ -65,6 +65,7 @@ class Events2PostAdmin(admin.ModelAdmin):
         "clear_post_time",
         "change_queue",
         'update_post_text_for_posting',
+        'transfer_events_to_site',
         utils.post_date_order_by_queue,
         utils.refresh_posting_time,
     ]
@@ -74,6 +75,7 @@ class Events2PostAdmin(admin.ModelAdmin):
     admin.ModelAdmin.actions_selection_counter = True
     readonly_fields = ("markdown_post_view_model",)
     include = ( "markdown_post_view_model")
+    exclude = ("full_text",)
 
     class Media:
         js = ("js/post_to_markdown.js"
@@ -88,14 +90,6 @@ class Events2PostAdmin(admin.ModelAdmin):
                                       .replace('_','*')
                                       )
         return format_html(html_image+html_post + '</div>')
-
-    # def ready_post(self, instance):
-    #     html_image = f"<img src='{instance.image}' width='100%'>"
-    #     html_code = """
-    #     <a type="markdown_post" id="markdown_post" href="javascript:markdown_to()">Send Request</a>
-    #     <div id='output'> Hey </div>
-    #     """
-    #     return format_html(html_image+html_code)
 
     def get_ordering(self, request):
         return ["status", "queue"]
@@ -152,8 +146,23 @@ class Events2PostAdmin(admin.ModelAdmin):
 
         for event in events:
             new_post_text = PostHelper(event)._post_markdown()
-            event.full_text = new_post_text
+            event.post = new_post_text
             event.save()
+
+
+    def transfer_events_to_site(self, request, queryset):
+        updated = utils.move_event_to_site(self.model)
+        self.message_user(
+            request,
+            ngettext(
+                "%d event was successfully transfered to site version.",
+                "%d events were successfully transfered to site version.",
+                updated,
+            )
+            % updated,
+            messages.SUCCESS,
+        )
+
 
 
 
@@ -195,3 +204,4 @@ admin.site.register(EventsNotApprovedOld, EventsAdmin)
 admin.site.register(PostingTime, PostingTimesAdmin)
 admin.site.register(Events2Post, Events2PostAdmin)
 admin.site.register(Parameter, ParametersAdmin)
+admin.site.register(Event)

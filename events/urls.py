@@ -11,7 +11,11 @@ urlpatterns = [
     path("fill_empty_post_time/", views.fill_empty_post_time, name="fill_empty_post_time"),
     path("update_all/", views.update_all, name="update_all"),
     path("parameters_for_channel/", views.get_parameters, name="parameters_for_channel"),
-    path("<int:event_id>", views.event_post_html, name="event_post_html"),
+    #path("<int:event_id>", views.event_post_html, name="event_post_html"),
     path("markdown_to_html/", views.markdown_to_html, name="markdown_to_html"),
-    path("", views.all_events, name="all_events"),
+    path("markdown_all_events/", views.all_events, name="all_events"),
+    path("transfer_posted_events_to_site/", views.transfer_posted_events_to_site, name="transfer_posted_events_to_site"),
+
+    path("", views.event_list, name="event_list"),
+    path("<int:id>", views.event_full, name="event_full"),
 ]
