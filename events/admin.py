@@ -9,6 +9,8 @@ from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Pos
 from django.urls import reverse_lazy
 from . import utils
 
+from .helper.post_helper import PostHelper
+
 
 def open_url(obj):
     return format_html("<a href='%s' target='_blank'>%s</a>" % (obj.url, obj.url))
@@ -53,6 +55,7 @@ class Events2PostAdmin(admin.ModelAdmin):
         open_url,
         "status_color",
     ]
+    #exclude = ["full_text"]
     list_filter = ["status"]
     list_editable = ["queue", "post_date"]
     search_fields = ["title", "post"]
@@ -61,6 +64,7 @@ class Events2PostAdmin(admin.ModelAdmin):
         "change_status_to_Spam",
         "clear_post_time",
         "change_queue",
+        'update_post_text_for_posting',
         utils.post_date_order_by_queue,
         utils.refresh_posting_time,
     ]
@@ -143,7 +147,14 @@ class Events2PostAdmin(admin.ModelAdmin):
 
     change_queue.short_description = "Change event place"
 
-    # Delete post_time and put post_time from table posting_time
+    def update_post_text_for_posting(self, request, queryset):
+        events = queryset.all()
+
+        for event in events:
+            new_post_text = PostHelper(event)._post_markdown()
+            event.full_text = new_post_text
+            event.save()
+
 
 
 weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -174,7 +185,6 @@ class ParametersAdmin(admin.ModelAdmin):
 
     def copy(self, request, queryset):
         for object in queryset:
-            print(object)
             object.id = None
             object.save()
     copy.short_description = "Duplicate selected record"

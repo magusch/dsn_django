@@ -17,20 +17,20 @@ class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
     approved = models.BooleanField(default=False, blank=True)
     title = models.CharField(max_length=500)
     post = models.TextField(default="", blank=True)
+    full_text = models.TextField(default="", blank=True, null=True)
     image = models.CharField(max_length=500, blank=True, null=True)
     url = models.CharField(max_length=500, blank=True)
     price = models.CharField(max_length=500, blank=True)
     address = models.CharField(max_length=500, blank=True)
     explored_date = models.DateTimeField(
-        "published date and time", default=timezone.now
+        "published date and time",
     )
     from_date = models.DateTimeField(
-        "event date_from", default=(timezone.now() + timezone.timedelta(days=2))
+        "event date_from",
     )
     to_date = models.DateTimeField(
         "event to_date",
         blank=True,
-        default=(timezone.now() + timezone.timedelta(days=2)),
     )
 
     def __str__(self):
@@ -55,20 +55,20 @@ class EventsNotApprovedOld(models.Model):  # Table 2
     approved = models.BooleanField(default=False)
     title = models.CharField(max_length=500)
     post = models.TextField(default="", blank=True)
+    full_text = models.TextField(default="", blank=True, null=True)
     image = models.CharField(max_length=500, blank=True, null=True)
     url = models.CharField(max_length=500, blank=True)
     price = models.CharField(max_length=500, blank=True)
     address = models.CharField(max_length=500, blank=True)
     explored_date = models.DateTimeField(
-        "published date and time", default=timezone.now
+        "published date and time",
     )
     from_date = models.DateTimeField(
-        "event from_date", default=timezone.now() + timezone.timedelta(days=2)
+        "event from_date",
     )
     to_date = models.DateTimeField(
         "event to_date",
         blank=True,
-        default=(timezone.now() + timezone.timedelta(days=2)),
     )
 
     def __str__(self):
@@ -101,17 +101,23 @@ monthes = ['января', 'февраля', "марта", "апреля", "ма
            "декабря"]
 
 
+def random_event_id():
+    return f"event{random.randint(1, 99)}_{timezone.now().date()}"
+
+def default_event_date():
+    return timezone.now() + timezone.timedelta(days=3)
+
+
 class Events2Post(models.Model):  # Table events for posting
-    event_id = models.CharField(max_length=30, default=f"event{random.randint(1, 99)}_{timezone.now().date()}")
+    event_id = models.CharField(max_length=30, default=random_event_id)
     queue = models.IntegerField(default=last_queue)
     title = models.CharField(max_length=500)
 
-    default_events_date = timezone.now() + timezone.timedelta(days=3)
-
-    month = monthes[default_events_date.month - 1]
+    month = monthes[default_event_date().month - 1]
 
     default_post_text = f"* {month}*  фестиваль *«ааааа»*\n\n\n\n*Где:*\n*Когда:*\n*Вход:*"
     post = models.TextField(default=default_post_text, blank=True)
+    full_text = models.TextField(default="", blank=True, null=True)
     image = models.CharField(max_length=500, blank=True, null=True)
     url = models.CharField(max_length=500, blank=True)
     status = models.CharField(
@@ -129,10 +135,10 @@ class Events2Post(models.Model):  # Table events for posting
     )
     post_date = models.DateTimeField("datetime for posting", blank=True, null=True)
     from_date = models.DateTimeField(
-        "event from_date", default=default_events_date
+        "event from_date", default=default_event_date
     )
     to_date = models.DateTimeField(
-        "event to_date", default=default_events_date
+        "event to_date", default=default_event_date
     )
 
     def __str__(self):
