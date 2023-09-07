@@ -6,15 +6,23 @@ from .datetime_helper import weekday_name, month_name
 
 import pytz
 
+from datetime import datetime
 
 class PostHelper:
     def __init__(self, event):
         self.TIMEZONE = pytz.timezone("Europe/Moscow")
+        if type(event) == dict:
+            event = DictAsMethods(event)
         self.event = event
         self.dates_to_right_tz()
 
 
     def dates_to_right_tz(self):
+        if type(self.event.from_date) == str:
+            self.event.from_date = datetime.fromisoformat(self.event.from_date)
+        if type(self.event.to_date) == str:
+            self.event.to_date = datetime.fromisoformat(self.event.to_date)
+
         self.event.from_date = self.event.from_date.astimezone(self.TIMEZONE)
         self.event.to_date = self.event.to_date.astimezone(self.TIMEZONE)
 
@@ -31,10 +39,6 @@ class PostHelper:
         title = re.sub(r"[\"»](?=[^a-zA-Zа-яА-Я0-9]|$)", "»*", title)
         date_from_to = self.date_to_post()
 
-        # title_date = "{day} {month}".format(
-        #     day=event.date_from.day,
-        #     month=month_name(event.date_from),
-        # )
         title_date = self.date_to_title()
 
         title = f"*{title_date}* {title}\n\n"
@@ -63,13 +67,16 @@ class PostHelper:
         return title + post_text + footer
 
     def address_markdown(self):
-        raw_address = self.event.address #f"{self.event.place_name}, {self.event.adress}"
-        addresses = address_from_places(raw_address)
+        raw_address = self.event.address
 
+        # Todo: change logic here (if we have place_id)
+        addresses = address_from_places(raw_address)
         if addresses and hasattr(self.event, 'place_id'):
             if self.event.place_id is None:
                 self.event.place_id = addresses[0].place.id
-            address_line = self.event.place.markdown_address()
+            address_line = addresses[0].place.markdown_address()
+        elif addresses:
+            address_line = addresses[0].place.markdown_address()
         else:
             address_line = \
                 f"[{self.event.address}](https://2gis.ru/spb/search/{self.event.address})"
@@ -77,14 +84,17 @@ class PostHelper:
         return address_line
 
     def place_id(self):
-        if self.event.place_id is None:
-            raw_address = self.event.address
-            addresses = address_from_places(raw_address)
-            if addresses:
+        raw_address = self.event.address
+        addresses = address_from_places(raw_address)
+        if hasattr(self.event, 'place_id'):
+            if self.event.place_id is None and addresses:
                 self.event.place_id = addresses[0].place.id
+        elif addresses:
+            self.event.place_id = addresses[0].place.id
+        else:
+            self.event.place_id = None
 
         return self.event.place_id
-
 
     def date_to_title(self):
         date_from = self.event.from_date
@@ -162,9 +172,25 @@ class PostHelper:
             post = ""
             for s in sentences:
                 if len(post) < 365:
-                    post_text = post + s + "."
+                    post = post + s + "."
                 else:
                     post_text = post
                     break
         return post_text
 
+
+class DictAsMethods(object):
+    def __init__(self, data):
+        self.data = data
+
+    def __getattr__(self, name):
+        if name in self.data:
+            return self.data[name]
+        else:
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+
+    def __setattr__(self, name, value):
+        if name == 'data':
+            super().__setattr__(name, value)
+        else:
+            self.data[name] = value
