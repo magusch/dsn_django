@@ -49,9 +49,12 @@
             var from_date = document.getElementById('id_from_date_0').value + ' ' + document.getElementById('id_from_date_1').value
             var to_date = document.getElementById('id_to_date_0').value + ' ' + document.getElementById('id_to_date_1').value
 
+            var place_id = document.getElementById('id_place').value
+
             var data = {
                 csrfmiddlewaretoken: '{{ csrf_token }}',
                 id: {{ original.id }},
+                place_id: place_id,
                 title: document.getElementById('id_title').value,
                 full_text: document.getElementById('id_full_text').value,
                 url: document.getElementById('id_url').value,

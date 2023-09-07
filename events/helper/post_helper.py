@@ -1,6 +1,6 @@
 import re
 
-from place.utils import address_from_places
+from place.utils import address_from_places, place_orm_object
 
 from .datetime_helper import weekday_name, month_name
 
@@ -67,19 +67,23 @@ class PostHelper:
         return title + post_text + footer
 
     def address_markdown(self):
-        raw_address = self.event.address
+        address_line = None
+        if hasattr(self.event, 'place_id'):
+            if self.event.place_id:
+                place = place_orm_object(self.event.place_id)
+                address_line = place.markdown_address()
 
-        # Todo: change logic here (if we have place_id)
-        addresses = address_from_places(raw_address)
-        if addresses and hasattr(self.event, 'place_id'):
-            if self.event.place_id is None:
-                self.event.place_id = addresses[0].place.id
-            address_line = addresses[0].place.markdown_address()
-        elif addresses:
-            address_line = addresses[0].place.markdown_address()
-        else:
-            address_line = \
-                f"[{self.event.address}](https://2gis.ru/spb/search/{self.event.address})"
+        if address_line is None:
+            raw_address = self.event.address
+            addresses = address_from_places(raw_address)
+
+            if addresses:
+                address_line = addresses[0].place.markdown_address()
+                if hasattr(self.event, 'place_id'):
+                    self.event.place_id = addresses[0].place.id
+            else:
+                address_line = \
+                    f"[{self.event.address}](https://2gis.ru/spb/search/{self.event.address})"
 
         return address_line
 
