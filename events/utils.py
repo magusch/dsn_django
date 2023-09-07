@@ -149,24 +149,11 @@ def move_event_to_post(Events_model):
 
     post_date, queue = last_post_date()
 
-    # making post text in transfer proccess
-    # for event in events:
-    #     event.full_text = PostHelper(event)._post_markdown()
-    #     event_attributes = event.__dict__.copy()
-    #     event_attributes.pop("_state")
-    #     event_attributes.pop("approved")
-    #     event_attributes.pop("id")
-    #
-    #     Events2Post.objects.create(
-    #         status="ReadyToPost", post_date=post_date, queue=queue, **event_attributes
-    #     )
-    #     post_date, queue = last_post_date()
-
     for event in events:
-        event_full_text = PostHelper(event)._post_markdown()
-
         event_dict = model_to_dict(event, fields=event2post_list)
-        event_dict['full_text'] = event_full_text
+        # make post in transfering
+        # event_full_text = PostHelper(event)._post_markdown()
+        # event_dict['full_text'] = event_full_text
         Events2Post.objects.create(
             status="ReadyToPost", post_date=post_date, queue=queue, **event_dict
         )
@@ -259,6 +246,7 @@ def delete_old_events(Events_model):
     today = timezone.now()
     Events_model.objects.filter(to_date__lt=today).delete()
 
+
 def count_events_by_day(*kwargs):
     query_post_date_ordered = Events2Post.objects.filter(status="ReadyToPost").order_by(
         "queue"
@@ -281,3 +269,14 @@ def count_events_by_day(*kwargs):
         i += 1
     posts_in_day[check_day.day] = i
     return posts_in_day
+
+
+def make_a_post_text(event):
+    if type(event) == Events2Post:
+        new_event_post = event.remake_post()
+    elif type(event) == dict:
+        new_event_post = PostHelper(event)._post_markdown()
+    else:
+        new_event_post = None
+
+    return new_event_post

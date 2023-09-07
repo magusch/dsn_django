@@ -18,4 +18,7 @@ urlpatterns = [
 
     path("", views.event_list, name="event_list"),
     path("<int:id>", views.event_full, name="event_full"),
+
+    path("remake_post/<int:id>", views.remake_post, name="remake_post"),
+
 ]
