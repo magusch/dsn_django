@@ -47,6 +47,7 @@ class EventsAdmin(admin.ModelAdmin):
 
 class Events2PostAdmin(admin.ModelAdmin):
     change_list_template = "events/change_list_approved.html"
+    change_form_template = "events/change_form.html"
     list_display = [
         "title",
         "queue",
@@ -75,7 +76,6 @@ class Events2PostAdmin(admin.ModelAdmin):
     admin.ModelAdmin.actions_selection_counter = True
     readonly_fields = ("markdown_post_view_model",)
     include = ( "markdown_post_view_model")
-    exclude = ("full_text",)
 
     class Media:
         js = ("js/post_to_markdown.js"
@@ -145,9 +145,7 @@ class Events2PostAdmin(admin.ModelAdmin):
         events = queryset.all()
 
         for event in events:
-            new_post_text = PostHelper(event)._post_markdown()
-            event.post = new_post_text
-            event.save()
+            event.remake_post(save=True)
 
 
     def transfer_events_to_site(self, request, queryset):
