@@ -13,8 +13,6 @@ from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Par
 
 from . import utils, models
 
-from urllib.parse import urlparse
-
 def event_post_html(request, event_id):
     event = get_object_or_404(Events2Post, pk=event_id)
     # image = f"<img src='{event.image}'>"
@@ -166,3 +164,28 @@ def markdown_to_html(request):
         if 'text' in request.GET:
             html = markdown.markdown(request.GET['text'])
     return HttpResponse(html)
+
+
+@staff_member_required
+def rebuild_post(request, id):
+    event = get_object_or_404(Events2Post, pk=id)
+    new_post = utils.make_a_post_text(event)
+    return HttpResponse(json.dumps(new_post)) #redirect(request.META['HTTP_REFERER'])
+
+@csrf_exempt
+@staff_member_required
+def remake_post(request, id):
+    if request.method == "POST":
+        event_dict = dict(request.POST)
+
+        for k, v in event_dict.items():
+            event_dict[k] = v[0]
+        new_post = utils.make_a_post_text(event_dict)
+        return HttpResponse(json.dumps(new_post))
+
+    if request.method == "GET":
+        event = get_object_or_404(Events2Post, pk=id)
+        new_post = utils.make_a_post_text(event)
+        return HttpResponse(json.dumps(new_post))
+
+    return redirect(request.META['HTTP_REFERER'])

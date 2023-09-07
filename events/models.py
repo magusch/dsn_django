@@ -12,6 +12,7 @@ import markdown
 
 from place.models import Place
 
+from .helper.post_helper import PostHelper
 
 class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
     event_id = models.CharField(max_length=30)
@@ -189,6 +190,13 @@ class Events2Post(models.Model):  # Table events for posting
 
     def address_markdown(self):
         return self.place.markdown_address()
+
+    def remake_post(self, save=False):
+        remaked_post = PostHelper(self)._post_markdown()
+        self.post = remaked_post
+        if save: 
+            self.save()
+        return remaked_post
 
     def clean(self):
         error_message = ''
