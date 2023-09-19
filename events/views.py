@@ -174,7 +174,7 @@ def rebuild_post(request, id):
 
 @csrf_exempt
 @staff_member_required
-def remake_post(request, id):
+def remake_post(request, id=0):
     if request.method == "POST":
         event_dict = dict(request.POST)
 
@@ -183,7 +183,7 @@ def remake_post(request, id):
         new_post = utils.make_a_post_text(event_dict)
         return HttpResponse(json.dumps(new_post))
 
-    if request.method == "GET":
+    if request.method == "GET" and id != 0:
         event = get_object_or_404(Events2Post, pk=id)
         new_post = utils.make_a_post_text(event)
         return HttpResponse(json.dumps(new_post))
