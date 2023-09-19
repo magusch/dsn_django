@@ -20,5 +20,6 @@ urlpatterns = [
     path("<int:id>", views.event_full, name="event_full"),
 
     path("remake_post/<int:id>", views.remake_post, name="remake_post"),
+    path("remake_post/", views.remake_post, name="remake_post_empty"),
 
 ]

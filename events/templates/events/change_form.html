@@ -26,9 +26,18 @@
 {% block content %}<div id="content-main">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+
+        {% if original.id %}
+          var remake_post_url = '{% url 'remake_post' id=original.id %}';
+        {% else %}
+          {# Handle the case when original.id is not defined or empty #}
+          var remake_post_url = '{% url 'remake_post_empty' %}';
+        {% endif %}
+
+
         function rebuildPost() {
             $.ajax({
-                url: '{% url 'remake_post' id=original.id %}',
+                url: remake_post_url,
                 method: 'GET',
                 dataType: 'json',
                 success: function(response) {
@@ -36,7 +45,6 @@
                     var resultField = document.getElementById('id_post');
 
                     // Set the value of the text field with the special class
-
                     resultField.value = data;
                 },
                 error: function(xhr, status, error) {
@@ -53,7 +61,7 @@
 
             var data = {
                 csrfmiddlewaretoken: '{{ csrf_token }}',
-                id: {{ original.id }},
+                id: '{{ original.id }}',
                 place_id: place_id,
                 title: document.getElementById('id_title').value,
                 full_text: document.getElementById('id_full_text').value,
@@ -65,7 +73,7 @@
             };
 
             $.ajax({
-                url: '{% url 'remake_post' id=original.id %}',
+                url: remake_post_url,
                 method: 'POST',
                 dataType: 'json',
                 data,
@@ -86,24 +94,25 @@
 
 
 {% block object-tools %}
-{% if change %}{% if not is_popup %}
-  <ul class="object-tools">
+    <ul class="object-tools">
       <li>
           <a href="#" onclick="remakePost()"  alt="It uses value of title, full_text, date_from, price, url">Remake post</a>
       </li>
       <li>
           <a href="#" onclick="hideFullText()" id="hide_full_text">Show full text</a>
       </li>
-{#      <li>#}
-{#          <a href="#" onclick="rebuildPost()">Update post from saved info</a>#}
-{#      </li>#}
-    {% block object-tools-items %}
-      {% change_form_object_tools %}
-    {% endblock %}
 
-  </ul>
-{% endif %}{% endif %}
+        {% if change %}
+            {% if not is_popup %}
+                {% block object-tools-items %}
+                    {% change_form_object_tools %}
+                {% endblock %}
+            {% endif %}
+        {% endif %}
+
+    </ul>
 {% endblock %}
+
 <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}{% block form_top %}{% endblock %}
 <div>
 {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
