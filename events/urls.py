@@ -1,7 +1,11 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
 from . import views
 
+
+router = DefaultRouter()
+router.register(r'events', views.EventViewSet)
 
 urlpatterns = [
     path("check_event_status/", views.check_event_status, name="check_event_status"),
@@ -21,5 +25,8 @@ urlpatterns = [
 
     path("remake_post/<int:id>", views.remake_post, name="remake_post"),
     path("remake_post/", views.remake_post, name="remake_post_empty"),
+
+    #REST API
+    path("api/", include(router.urls)),
 
 ]

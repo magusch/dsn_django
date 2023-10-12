@@ -9,6 +9,9 @@ from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.template import loader
 
+from rest_framework import viewsets, pagination
+from .serializers import EventSerializer
+
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Parameter, Event
 
 from . import utils, models
@@ -189,3 +192,26 @@ def remake_post(request, id=0):
         return HttpResponse(json.dumps(new_post))
 
     return redirect(request.META['HTTP_REFERER'])
+
+# Rest API for events
+
+class EventViewSet(viewsets.ModelViewSet):
+    serializer_class = EventSerializer
+    pagination_class = pagination.LimitOffsetPagination
+
+    def get_queryset(self):
+        queryset = Event.objects.all()
+        start_date = self.request.query_params.get('start_date')
+        end_date = self.request.query_params.get('end_date')
+        exact_date = self.request.query_params.get('date')
+
+        if start_date:
+            queryset = Event.filter(from_date__gte=start_date)
+
+        if end_date:
+            queryset = queryset.filter(to_date__lte=end_date)
+
+        if exact_date:
+            queryset = queryset.filter(from_date__lte=exact_date, to_date__gte=exact_date)
+
+        return queryset
