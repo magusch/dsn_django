@@ -8,6 +8,7 @@ import pytz
 
 from datetime import datetime
 
+
 class PostHelper:
     def __init__(self, event):
         self.TIMEZONE = pytz.timezone("Europe/Moscow")
@@ -15,7 +16,6 @@ class PostHelper:
             event = DictAsMethods(event)
         self.event = event
         self.dates_to_right_tz()
-
 
     def dates_to_right_tz(self):
         if type(self.event.from_date) == str:
@@ -30,18 +30,32 @@ class PostHelper:
         return f"Event: {self.title}"
 
     def _title_markdown(self):
-        return self.event.title.replace("`", r"\`").replace("_", r"\_").replace("*", r"\*")
+        title = self.event.title
+        title = title.replace("`", r"\`").replace("_", r"\_").replace("*", r"\*")
+
+        if '«' in title and '»' in title:
+            pattern = r'(«[^»]*»)'
+            title = re.sub(pattern, r'*\1*', title)
+        elif re.search(r'[A-Za-z]', title):
+            pattern = r'(\b[A-Za-z0-9]+\b(?: \b[A-Za-z0-9]+\b)*)'
+            title = re.sub(pattern, r'*\1*', title)
+        elif re.search(r'[A-ZА-Я]{3,}', title):
+            pattern = r'(\b[A-ZА-Я]{3,}\b(?: \b[A-ZА-Я0-9]{1,}\b)*)'
+            title = re.sub(pattern, r'*\1*', title)
+        else:
+            title = f"{title[0]}*{title[1:]}*"
+
+        return title
+
 
     def _post_markdown(self):
         title = self._title_markdown()
 
-        title = re.sub(r"[\"«](?=[^\ \.!\n])", "*«", title)
-        title = re.sub(r"[\"»](?=[^a-zA-Zа-яА-Я0-9]|$)", "»*", title)
         date_from_to = self.date_to_post()
 
         title_date = self.date_to_title()
 
-        title = f"*{title_date}* {title}\n\n"
+        full_title = f"*{title_date}* {title}\n\n"
 
         if self.event.full_text is None:
             post_text = self.event.post
@@ -64,7 +78,7 @@ class PostHelper:
             f"*Вход:* [{self.event.price}]({self.event.url})"
         )
 
-        return title + post_text + footer
+        return full_title + post_text + footer
 
     def address_markdown(self):
         address_line = None
