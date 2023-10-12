@@ -33,6 +33,10 @@ class PostHelper:
         title = self.event.title
         title = title.replace("`", r"\`").replace("_", r"\_").replace("*", r"\*")
 
+        #title = re.sub(r"[\"'‘](?=[^\ \.!\n])", "«", title)
+        #title = re.sub(r"[\"'‘](?=[^a-zA-Zа-яА-Я0-9]|$)", "»", title)
+        title = re.sub(r'["\'](\S.*?)["\']', r'«\1»', title)
+
         if '«' in title and '»' in title:
             pattern = r'(«[^»]*»)'
             title = re.sub(pattern, r'*\1*', title)
