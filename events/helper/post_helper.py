@@ -52,7 +52,7 @@ class PostHelper:
         return title
 
 
-    def _post_markdown(self):
+    def post_markdown(self) -> object:
         title = self._title_markdown()
 
         date_from_to = self.date_to_post()

@@ -152,8 +152,8 @@ def move_event_to_post(Events_model):
     for event in events:
         event_dict = model_to_dict(event, fields=event2post_list)
         # make post in transfering
-        # event_full_text = PostHelper(event)._post_markdown()
-        # event_dict['full_text'] = event_full_text
+        #event_full_text = PostHelper(event).post_markdown()
+        event_dict['post'] = make_a_post_text(event_dict)
         Events2Post.objects.create(
             status="ReadyToPost", post_date=post_date, queue=queue, **event_dict
         )
@@ -275,7 +275,7 @@ def make_a_post_text(event):
     if type(event) == Events2Post:
         new_event_post = event.remake_post()
     elif type(event) == dict:
-        new_event_post = PostHelper(event)._post_markdown()
+        new_event_post = PostHelper(event).post_markdown()
     else:
         new_event_post = None
 
