@@ -271,9 +271,9 @@ def count_events_by_day(*kwargs):
     return posts_in_day
 
 
-def make_a_post_text(event):
+def make_a_post_text(event, save=0):
     if type(event) == Events2Post:
-        new_event_post = event.remake_post()
+        new_event_post = event.remake_post(save=save)
     elif type(event) == dict:
         new_event_post = PostHelper(event).post_markdown()
     else:
