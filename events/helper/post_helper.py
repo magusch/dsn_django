@@ -17,6 +17,9 @@ class PostHelper:
         self.event = event
         self.dates_to_right_tz()
 
+        from .load_parameters import footer_link
+        self.footer_link = footer_link()
+
     def dates_to_right_tz(self):
         if type(self.event.from_date) == str:
             self.event.from_date = datetime.fromisoformat(self.event.from_date)
@@ -75,14 +78,17 @@ class PostHelper:
 
         address_line = self.address_markdown()
 
+
         footer = (
             "\n\n"
             f"*Где:* {address_line}\n"
             f"*Когда:* {date_from_to} \n"
             f"*Вход:* [{self.event.price}]({self.event.url})"
+            f"\n\n{self.footer_link}"
         )
 
-        return full_title + post_text + footer
+        full_post = (full_title + post_text.strip() + footer).strip()
+        return full_post
 
     def address_markdown(self):
         address_line = None
@@ -216,3 +222,5 @@ class DictAsMethods(object):
             super().__setattr__(name, value)
         else:
             self.data[name] = value
+
+
