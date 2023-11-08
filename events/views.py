@@ -198,3 +198,25 @@ def remake_post(request, id=0, save=0):
             return HttpResponse(json.dumps(new_post))
 
     return redirect(request.META['HTTP_REFERER'])
+
+
+@staff_member_required
+def check_posts(request):
+    ready_to_post_events = Events2Post.objects.filter(status="ReadyToPost").order_by("queue").all()
+    result = []
+
+    for event in ready_to_post_events:
+        check_result = event.post_check()
+        if check_result:
+            result.append(
+                {
+                    'id': event.id,
+                    'event_id': event.event_id,
+                    'title': event.title,
+                    'errors': event.post_check(),
+                    'date_post': event.post_date.isoformat()
+                }
+            )
+
+    answer = json.dumps(result, ensure_ascii=False)
+    return HttpResponse(answer)
