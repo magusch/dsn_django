@@ -13,6 +13,7 @@ import markdown
 from place.models import Place
 
 from .helper.post_helper import PostHelper
+from .helper.post_checker import PostChecker
 
 class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
     event_id = models.CharField(max_length=30)
@@ -192,11 +193,20 @@ class Events2Post(models.Model):  # Table events for posting
         return self.place.markdown_address()
 
     def remake_post(self, save=False):
-        remaked_post = PostHelper(self)._post_markdown()
+        remaked_post = PostHelper(self).post_markdown()
         self.post = remaked_post
         if save: 
             self.save()
         return remaked_post
+
+    def post_check(self):
+        result_checker = PostChecker(self.post).result
+
+        result_brief = ''
+        for key in result_checker.keys():
+            result_brief += key
+        return result_brief
+
 
     def clean(self):
         error_message = ''
@@ -207,21 +217,8 @@ class Events2Post(models.Model):  # Table events for posting
             error_message += f"Post text is too biig. It has {len(self.post)} characters " \
                              f"but it should have a maximum of {maximum_characters}"
 
-        # asterisk_len = len(re.findall("\*",self.post))  # how many asterisk in the post
-
-        # underscore_len = len(re.findall("\_", self.post))  # how many underscore in the post
-        #
-        # if asterisk_len % 2 != 0:
-        #     error_message += f"The Post has odd number ({asterisk_len}) of * .\n"
-
-        # if underscore_len % 2 != 0:
-        #     error_message += f"The Post has odd number ({underscore_len}) of _ .\n"
-
-
         if error_message != '':
             raise ValidationError(_(error_message))
-
-    # Events2Post.objects.all().update(queue=F('queue')+1)
 
 
 weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]

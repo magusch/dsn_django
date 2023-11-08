@@ -55,9 +55,9 @@ class Events2PostAdmin(admin.ModelAdmin):
         "from_date_color",
         open_url,
         "status_color",
+        # "post_check"
     ]
-    #exclude = ["full_text"]
-    list_filter = ["status"]
+
     list_editable = ["queue", "post_date"]
     search_fields = ["title", "post"]
     actions = [
@@ -69,6 +69,7 @@ class Events2PostAdmin(admin.ModelAdmin):
         'transfer_events_to_site',
         utils.post_date_order_by_queue,
         utils.refresh_posting_time,
+        'text_post_check'
     ]
     admin.ModelAdmin.save_on_top = True
     admin.ModelAdmin.actions_on_bottom = True
@@ -159,6 +160,26 @@ class Events2PostAdmin(admin.ModelAdmin):
             )
             % updated,
             messages.SUCCESS,
+        )
+
+    def text_post_check(self, request, queryset):
+        text = '%d events:'
+        updated = queryset.count()
+        for obj in queryset:
+            check_result = obj.post_check()
+            if check_result:
+                text += f" {obj.title} – {obj.post_check()};"
+            else:
+                updated = updated-1
+
+        self.message_user(
+            request,
+            ngettext(
+                text,
+                text,
+                updated
+            )
+            % updated,
         )
 
 
