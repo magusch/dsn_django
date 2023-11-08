@@ -16,13 +16,13 @@ class PostChecker:
         self.title()
 
     def asterisk(self):
-        asterisk_len = len(re.findall("\*", self.post))  # how many asterisk in the post
+        asterisk_len = len(re.findall(r"\*", self.post))  # how many asterisk in the post
         if asterisk_len % 2 != 0:
             error_message = f"The Post has odd number ({asterisk_len}) of * ."
             self.result['*'] = error_message
 
     def underscore(self):
-        underscore_len = len(re.findall("\_", self.post))  # how many underscore in the post
+        underscore_len = len(re.findall("_", self.post))  # how many underscore in the post
         if underscore_len % 2 != 0:
             error_message = f"The Post has odd number ({underscore_len}) of _ .\n"
             self.result['_'] = error_message
@@ -34,11 +34,10 @@ class PostChecker:
 
     def title(self):
         title = self.post.split("\n")[0]
-        asterisk_len_title = len(re.findall("\*", title))
-        if asterisk_len_title<3:
+        asterisk_len_title = len(re.findall(r"\*", title))
+        if asterisk_len_title < 3:
             error_message = f"The title doesn't have enough *."
             self.result['T'] = error_message
         elif asterisk_len_title % 2 != 0:
             error_message = f"The title has odd number ({asterisk_len_title}) of * ."
             self.result['T'] = error_message
-
