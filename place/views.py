@@ -1,10 +1,12 @@
 import json
 
 # from django.shortcuts import render
-# from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.admin.views.decorators import staff_member_required
 # from django.shortcuts import redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from .models import Place
 
+from django.template import loader
 
 from . import utils
 
@@ -38,3 +40,33 @@ def place_address(request):
         })
 
     return HttpResponse(json.dumps(address))
+
+
+@staff_member_required
+def find_place(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    if is_ajax:
+        if request.method == 'GET':
+            place_name = request.GET.get('query', '')
+            places = list()
+            for place in Place.objects.filter(place_name__contains=place_name):
+                places.append({
+                    'id': place.id,
+                    'place_name': place.place_name,
+                    'address': place.place_address,
+                    'metro': place.place_metro,
+                })
+            return JsonResponse({'results':places})
+        return JsonResponse({'status': 'Invalid request'}, status=400)
+    else:
+        return HttpResponseBadRequest('Invalid request')
+
+
+def all_places(request):
+    all_places = Place.objects.all()
+    template = loader.get_template('all_places.html')
+    context = {
+        'all_places': all_places,
+    }
+    return HttpResponse(template.render(context, request))
