@@ -91,8 +91,8 @@ class Events2PostAdmin(admin.ModelAdmin):
     form = Events2PostAdminForm
 
     class Media:
-        js = ('static/qqq.js',
-            'admin.js')
+        pass
+        # js = ('admin.js')
 
     def markdown_post_view(self, instance):
         html_image = f"<div style='width:325px;'><img src='{instance.image}' width='325px'>"
