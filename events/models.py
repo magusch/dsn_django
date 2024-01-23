@@ -193,11 +193,19 @@ class Events2Post(models.Model):  # Table events for posting
         return self.place.markdown_address()
 
     def remake_post(self, save=False):
-        remaked_post = PostHelper(self).post_markdown()
-        self.post = remaked_post
-        if save: 
+        post_helper = PostHelper(self)
+
+        new_maked_event = {
+            'post': post_helper.post_markdown(),
+            'place_id': post_helper.place_id(),
+        }
+
+        if save:
+            self.post = new_maked_event['post']
+            self.place_id = new_maked_event['place_id']
             self.save()
-        return remaked_post
+
+        return new_maked_event
 
     def post_check(self):
         result_checker = PostChecker(self.post).result

@@ -152,7 +152,6 @@ def move_event_to_post(Events_model):
     for event in events:
         event_dict = model_to_dict(event, fields=event2post_list)
         # make post in transfering
-        #event_full_text = PostHelper(event).post_markdown()
         event_dict['post'] = make_a_post_text(event_dict)
         Events2Post.objects.create(
             status="ReadyToPost", post_date=post_date, queue=queue, **event_dict
@@ -273,10 +272,15 @@ def count_events_by_day(*kwargs):
 
 def make_a_post_text(event, save=0):
     if type(event) == Events2Post:
-        new_event_post = event.remake_post(save=save)
+        remaked_event = event.remake_post(save=save)
+        new_event_post = remaked_event['post']
+        place_id = remaked_event['place_id']
     elif type(event) == dict:
-        new_event_post = PostHelper(event).post_markdown()
+        post_helper = PostHelper(event)
+        new_event_post = post_helper.post_markdown()
+        place_id = post_helper.place_id()
     else:
         new_event_post = None
+        place_id = None
 
     return new_event_post
