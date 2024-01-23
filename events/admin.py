@@ -223,9 +223,9 @@ class ParametersAdmin(admin.ModelAdmin):
     actions = ["copy",]
 
     def copy(self, request, queryset):
-        for object in queryset:
-            object.id = None
-            object.save()
+        for obj in queryset:
+            obj.id = None
+            obj.save()
     copy.short_description = "Duplicate selected record"
 
 
