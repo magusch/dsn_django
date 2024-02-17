@@ -22,6 +22,10 @@ urlpatterns = [
     path("remake_post/<int:id>", views.remake_post, name="remake_post"),
     path("remake_post/", views.remake_post, name="remake_post_empty"),
     path("make_post/<id>", views.remake_post, {'save': 1}, name="make_post"),
+
+    path("remake_post_ai/", views.remake_post, name="remake_empty_post_by_ai"),
+    path("remake_post_ai/<int:id>", views.remake_post_ai, name="remake_post_by_ai"),
+
     path("check_posts/", views.check_posts, name="check_posts"),
 
 ]

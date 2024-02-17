@@ -11,7 +11,7 @@ from django.template import loader
 
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Parameter, Event
 
-from . import utils, models
+from . import utils
 
 def event_post_html(request, event_id):
     event = get_object_or_404(Events2Post, pk=event_id)
@@ -196,6 +196,40 @@ def remake_post(request, id=0, save=0):
             event = get_object_or_404(Events2Post, pk=id)
             new_post = utils.make_a_post_text(event, save)
             return HttpResponse(json.dumps(new_post))
+
+    return redirect(request.META['HTTP_REFERER'])
+
+from .helper.open_ai_helper import OpenAIHelper
+
+@csrf_exempt
+@staff_member_required
+def remake_post_ai(request, id=0, save=0):
+    ai = OpenAIHelper()
+    if request.method == "POST":
+        event_dict = dict(request.POST)
+
+        for k, v in event_dict.items():
+            event_dict[k] = v[0]
+
+        new_event_data = ai.new_event_data(event_dict)
+        return HttpResponse(json.dumps([new_event_data]))
+
+    if request.method == "GET" and id != 0:
+        # if type(id) != int:
+        #     ids = id.split(',')
+        #     new_posts = []
+        #     for id_ex in ids:
+        #         event = get_object_or_404(Events2Post, pk=id_ex)
+        #         new_posts.append(utils.make_a_post_text(event, save))
+        #
+        #     return HttpResponse(json.dumps(new_posts))
+        # else:
+        # new_post = utils.make_a_post_text(event, save)
+        event = get_object_or_404(Events2Post, pk=id)
+
+        new_event_data = ai.new_event_data(event.__dict__)
+
+        return HttpResponse(json.dumps([new_event_data]))
 
     return redirect(request.META['HTTP_REFERER'])
 

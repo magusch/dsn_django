@@ -29,9 +29,11 @@
 
         {% if original.id %}
           var remake_post_url = '{% url 'remake_post' id=original.id %}';
+          var remake_post_ai_url = '{% url 'remake_post_by_ai' id=original.id %}';
         {% else %}
           {# Handle the case when original.id is not defined or empty #}
           var remake_post_url = '{% url 'remake_post_empty' %}';
+          var remake_post_ai_url = '{% url 'remake_empty_post_by_ai' %}';
         {% endif %}
 
 
@@ -90,6 +92,44 @@
             });
         }
 
+        function remakePostByAi() {
+            var from_date = document.getElementById('id_from_date_0').value + ' ' + document.getElementById('id_from_date_1').value
+            var to_date = document.getElementById('id_to_date_0').value + ' ' + document.getElementById('id_to_date_1').value
+
+            var place_id = document.getElementById('id_place').value
+
+            var data = {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                id: '{{ original.id }}',
+                place_id: place_id,
+                title: document.getElementById('id_title').value,
+                full_text: document.getElementById('id_full_text').value,
+                url: document.getElementById('id_url').value,
+                price: document.getElementById('id_price').value,
+                address: document.getElementById('id_address').value,
+                from_date: from_date,
+                to_date: to_date,
+            };
+
+            $.ajax({
+                url: remake_post_ai_url,
+                method: 'POST',
+                dataType: 'json',
+                data,
+                success: function(response) {
+                    var data = response;
+                    var resultFieldFullText = document.getElementById('id_full_text');
+                    var resultFieldTitle = document.getElementById('id_title');
+                    // Set the value of the text field with the special class
+                    resultFieldFullText.value = data[0]['full_text'];
+                    resultFieldTitle.value = data[0]['title'];
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
 
         (function ($) {
             $(document).ready(function () {
@@ -125,6 +165,9 @@
     <ul class="object-tools">
       <li>
           <a href="#" onclick="remakePost()"  alt="It uses value of title, full_text, date_from, price, url">Remake post</a>
+      </li>
+      <li>
+          <a href="#" onclick="remakePostByAi()"  alt="It uses value of title, full_text, date_from, price, url">Remake post by GPT</a>
       </li>
       <li>
           <a href="#" onclick="hideFullText()" id="hide_full_text">Show full text</a>
