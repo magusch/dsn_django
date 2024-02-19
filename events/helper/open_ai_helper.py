@@ -51,6 +51,5 @@ class OpenAIHelper:
         for key, new_event_data in ai_event_data.items():
             if key not in replace_phrases.keys(): continue
             ai_event[replace_phrases[key]] = new_event_data
-
         return ai_event
 

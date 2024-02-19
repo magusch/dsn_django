@@ -271,16 +271,14 @@ def count_events_by_day(*kwargs):
 
 
 def make_a_post_text(event, save=0):
+    remake_event_data = {}
     if type(event) == Events2Post:
         remaked_event = event.remake_post(save=save)
-        new_event_post = remaked_event['post']
-        place_id = remaked_event['place_id']
+        remake_event_data['post'] = remaked_event['post']
+        remake_event_data['place'] = remaked_event['place_id']
     elif type(event) == dict:
         post_helper = PostHelper(event)
-        new_event_post = post_helper.post_markdown()
-        place_id = post_helper.place_id()
-    else:
-        new_event_post = None
-        place_id = None
-
-    return new_event_post
+        remake_event_data['post'] = post_helper.post_markdown()
+        remake_event_data['place'] = post_helper.place_id()
+    
+    return remake_event_data

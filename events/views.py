@@ -13,6 +13,9 @@ from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Par
 
 from . import utils
 
+from .helper.open_ai_helper import OpenAIHelper
+
+
 def event_post_html(request, event_id):
     event = get_object_or_404(Events2Post, pk=event_id)
     # image = f"<img src='{event.image}'>"
@@ -180,7 +183,8 @@ def remake_post(request, id=0, save=0):
 
         for k, v in event_dict.items():
             event_dict[k] = v[0]
-        new_post = utils.make_a_post_text(event_dict, save)
+        new_event = utils.make_a_post_text(event_dict, save)
+        new_post = new_event['post']
         return HttpResponse(json.dumps(new_post))
 
     if request.method == "GET" and id != 0:
@@ -189,17 +193,17 @@ def remake_post(request, id=0, save=0):
             new_posts = []
             for id_ex in ids:
                 event = get_object_or_404(Events2Post, pk=id_ex)
-                new_posts.append(utils.make_a_post_text(event, save))
+                new_event = utils.make_a_post_text(event, save)
+                new_posts.append(new_event['post'])
 
             return HttpResponse(json.dumps(new_posts))
         else:
             event = get_object_or_404(Events2Post, pk=id)
-            new_post = utils.make_a_post_text(event, save)
+            new_event = utils.make_a_post_text(event, save)
+            new_post = new_event['post']
             return HttpResponse(json.dumps(new_post))
 
     return redirect(request.META['HTTP_REFERER'])
-
-from .helper.open_ai_helper import OpenAIHelper
 
 @csrf_exempt
 @staff_member_required
