@@ -168,13 +168,6 @@ def markdown_to_html(request):
             html = markdown.markdown(request.GET['text'])
     return HttpResponse(html)
 
-
-@staff_member_required
-def rebuild_post(request, id):
-    event = get_object_or_404(Events2Post, pk=id)
-    new_post = utils.make_a_post_text(event)
-    return HttpResponse(json.dumps(new_post)) #redirect(request.META['HTTP_REFERER'])
-
 @csrf_exempt
 @staff_member_required
 def remake_post(request, id=0, save=0):
@@ -184,8 +177,7 @@ def remake_post(request, id=0, save=0):
         for k, v in event_dict.items():
             event_dict[k] = v[0]
         new_event = utils.make_a_post_text(event_dict, save)
-        new_post = new_event['post']
-        return HttpResponse(json.dumps(new_post))
+        return HttpResponse(json.dumps(new_event))
 
     if request.method == "GET" and id != 0:
         if type(id) != int:

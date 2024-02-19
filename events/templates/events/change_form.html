@@ -37,24 +37,6 @@
         {% endif %}
 
 
-        function rebuildPost() {
-            $.ajax({
-                url: remake_post_url,
-                method: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    var data = response; // Modify this according to your API response structure
-                    var resultField = document.getElementById('id_post');
-
-                    // Set the value of the text field with the special class
-                    resultField.value = data;
-                },
-                error: function(xhr, status, error) {
-                    console.error(error);
-                }
-            });
-        }
-
         function remakePost() {
             var from_date = document.getElementById('id_from_date_0').value + ' ' + document.getElementById('id_from_date_1').value
             var to_date = document.getElementById('id_to_date_0').value + ' ' + document.getElementById('id_to_date_1').value
@@ -80,11 +62,17 @@
                 dataType: 'json',
                 data,
                 success: function(response) {
-                    // Assuming the response is a JSON object
-                    var data = response; // Modify this according to your API response structure
-                    var resultField = document.getElementById('id_post');
-                    // Set the value of the text field with the special class
-                    resultField.value = data;
+
+                    // Put all data from remake_post_url in fields with id="id_#{key}"
+                    var data = response;
+                    for (const key in data) {
+                        if (data.hasOwnProperty(key)) {
+                            const element = document.getElementById(`id_${key}`);
+                            if (element) {
+                                element.value = data[key];
+                            }
+                        }
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.error(error);
