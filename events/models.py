@@ -208,7 +208,9 @@ class Events2Post(models.Model):  # Table events for posting
         return new_maked_event
 
     def post_check(self):
-        result_checker = PostChecker(self.post).result
+        post_checker = PostChecker(self.post)
+        post_checker.place_empty(self.place)
+        result_checker = post_checker.result
 
         result_brief = ''
         for key in result_checker.keys():

@@ -14,7 +14,7 @@ class PostChecker:
         self.underscore()
         self.length()
         self.title()
-        self.place_empty()
+        #self.place_empty()
 
     def asterisk(self):
         asterisk_len = len(re.findall(r"\*", self.post))  # how many asterisk in the post
@@ -43,7 +43,7 @@ class PostChecker:
             error_message = f"The title has odd number ({asterisk_len_title}) of * ."
             self.result['T'] = error_message
 
-    def place_empty(self):
-        if self.place is None:
+    def place_empty(self, place):
+        if place is None:
             error_message = f"The place field is empty."
             self.result['P'] = error_message
