@@ -152,7 +152,9 @@ def move_event_to_post(Events_model):
     for event in events:
         event_dict = model_to_dict(event, fields=event2post_list)
         # make post in transfering
-        event_dict['post'] = make_a_post_text(event_dict)
+        ev = make_a_post_text(event_dict)
+        event_dict['post'] = ev['post']
+        event_dict['place_id'] = ev['place']
         Events2Post.objects.create(
             status="ReadyToPost", post_date=post_date, queue=queue, **event_dict
         )
