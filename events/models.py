@@ -133,6 +133,7 @@ class Events2Post(models.Model):  # Table events for posting
         default="ReadyToPost",
     )
     price = models.CharField(max_length=150, blank=True)
+    category = models.CharField(max_length=500, blank=True)
     address = models.CharField(max_length=500, blank=True)
 
     place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
