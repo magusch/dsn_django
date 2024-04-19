@@ -33,7 +33,6 @@ class OpenAIHelper:
         if self.answer is None:
             return {}
         data = self.answer.split('\n')
-        print(data)
         event_data = {}
         for d in data:
             if d.strip() == '':
@@ -41,7 +40,7 @@ class OpenAIHelper:
             divided = d.split('=>')
             event_data[divided[0].strip()] = divided[-1].strip()
 
-        if 'Текст' not in event_data or len(event_data['Текст'].strip) < 100: event_data['Текст'] = self.answer
+        if 'Текст' not in event_data or len(event_data['Текст'].strip()) < 100: event_data['Текст'] = self.answer
         return event_data
 
     def new_event_data(self, event):
