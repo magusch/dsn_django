@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='events2post',
             name='category',
-            field=models.CharField(blank=True, max_length=500),
+            field=models.CharField(blank=True, max_length=500, null=True),
         ),
     ]
