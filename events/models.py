@@ -24,6 +24,7 @@ class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
     image = models.CharField(max_length=500, blank=True, null=True)
     url = models.CharField(max_length=500, blank=True)
     price = models.CharField(max_length=500, blank=True)
+    category = models.CharField(max_length=500, null=True, blank=True)
     address = models.CharField(max_length=500, blank=True)
     place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
     explored_date = models.DateTimeField(
