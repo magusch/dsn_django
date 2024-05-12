@@ -63,6 +63,7 @@ class EventsNotApprovedOld(models.Model):  # Table 2
     image = models.CharField(max_length=500, blank=True, null=True)
     url = models.CharField(max_length=500, blank=True)
     price = models.CharField(max_length=500, blank=True)
+    category = models.CharField(max_length=500, null=True, blank=True)
     address = models.CharField(max_length=500, blank=True)
     place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
     explored_date = models.DateTimeField(
@@ -109,6 +110,10 @@ monthes = ['января', 'февраля', "марта", "апреля", "ма
 def random_event_id():
     return f"event{random.randint(1, 99)}_{timezone.now().date()}"
 
+def default_post_text():
+    month = monthes[default_event_date().month - 1]
+    return f"* {month}*  фестиваль *«ФЕЙСТНЕЙМ»*\n\nТЕКСТ\n\n*Где:*\n*Когда:*\n*Вход:*\n"
+
 
 def default_event_date():
     return timezone.now() + timezone.timedelta(days=3)
@@ -118,10 +123,6 @@ class Events2Post(models.Model):  # Table events for posting
     event_id = models.CharField(max_length=30, default=random_event_id)
     queue = models.IntegerField(default=last_queue)
     title = models.CharField(max_length=500)
-
-    month = monthes[default_event_date().month - 1]
-
-    default_post_text = f"* {month}*  фестиваль *«ааааа»*\n\n\n\n*Где:*\n*Когда:*\n*Вход:*"
     post = models.TextField(default=default_post_text, blank=True)
     full_text = models.TextField(default="", blank=True, null=True)
     image = models.CharField(max_length=500, blank=True, null=True)
