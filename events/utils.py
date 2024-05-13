@@ -139,6 +139,7 @@ def move_event_to_post(Events_model):
         "image",
         "url",
         "price",
+        "category",
         "address",
         "explored_date",
         "from_date",
