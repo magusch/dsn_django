@@ -173,6 +173,7 @@ def move_event_to_site(events_model):
         "image",
         "url",
         "price",
+        "category",
         "address",
         #"place",
         "from_date",

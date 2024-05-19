@@ -270,10 +270,11 @@ class Event(models.Model):
     full_text = models.TextField(default="", blank=True, null=True)
     image = models.CharField(max_length=500, blank=True, null=True)
     url = models.CharField(max_length=500, blank=True)
+    post_url = models.CharField(max_length=500, blank=True, null=True)
     price = models.CharField(max_length=150, blank=True, null=True)
     address = models.CharField(max_length=500, blank=True, null=True)
     place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
-    #category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.CharField(max_length=500, null=True, blank=True)
 
     pub_datetime = models.DateTimeField('published date and time', default=timezone.now)
     from_date = models.DateTimeField("event from_date", default=default_event_date)
