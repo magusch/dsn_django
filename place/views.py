@@ -50,14 +50,14 @@ def find_place(request):
         if request.method == 'GET':
             place_name = request.GET.get('query', '')
             places = list()
-            for place in Place.objects.filter(place_name__contains=place_name):
+            for place in Place.objects.filter(place_name__icontains=place_name):
                 places.append({
                     'id': place.id,
                     'place_name': place.place_name,
                     'address': place.place_address,
                     'metro': place.place_metro,
                 })
-            return JsonResponse({'results':places})
+            return JsonResponse({'results': places})
         return JsonResponse({'status': 'Invalid request'}, status=400)
     else:
         return HttpResponseBadRequest('Invalid request')
