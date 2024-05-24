@@ -8,6 +8,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.template import loader
+from django.contrib import messages
 
 from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Parameter, Event
 
@@ -250,3 +251,35 @@ def check_posts(request):
 
     answer = json.dumps(result, ensure_ascii=False)
     return HttpResponse(answer)
+
+
+# views.py
+
+from django.shortcuts import render, redirect
+from django.views import View
+from .forms import EventAddForm
+#from .models import EventsNotApprovedOld as EventsNotApprovedProposed
+
+
+class EventAddView(View):
+    form_class = EventAddForm
+    template_name = 'add_event.html'
+
+    def get(self, request):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = self.form_class(request.POST)
+        today = timezone.now().date()
+        events_today = EventsNotApprovedOld.objects.filter(explored_date__date=today).count()
+        if events_today >= 30:
+            messages.error(request, 'Добавление мероприятий сегодня больше недоступно.')
+            return redirect('add_event')
+        if form.is_valid():
+            event = form.save(commit=False)
+            event.save()
+            messages.success(request, 'Мероприятие успешно добавлено!')
+            return redirect('add_event')
+        return render(request, self.template_name, {'form': form})
+

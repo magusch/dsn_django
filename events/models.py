@@ -15,7 +15,26 @@ from place.models import Place
 from .helper.post_helper import PostHelper
 from .helper.post_checker import PostChecker
 
-class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
+
+def random_event_id():
+    return f"event{random.randint(1, 99)}_{timezone.now().date()}"
+
+
+monthes = ['января', 'февраля', "марта", "апреля",
+           "мая", "июня", "июля", "августа",
+           "сентября", "октября", "ноября", "декабря"]
+
+
+def default_post_text():
+    month = monthes[default_event_date().month - 1]
+    return f"* {month}*  фестиваль *«ФЕЙСТНЕЙМ»*\n\nТЕКСТ\n\n*Где:*\n*Когда:*\n*Вход:*\n"
+
+
+def default_event_date():
+    return timezone.now() + timezone.timedelta(days=3)
+
+
+class EventsNotApprovedNew(models.Model):
     event_id = models.CharField(max_length=30)
     approved = models.BooleanField(default=False, blank=True)
     title = models.CharField(max_length=500)
@@ -55,8 +74,8 @@ class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
             )
 
 
-class EventsNotApprovedOld(models.Model):  # Table 2
-    event_id = models.CharField(max_length=30)
+class EventsNotApprovedOld(models.Model):
+    event_id = models.CharField(max_length=30, default=random_event_id)
     approved = models.BooleanField(default=False)
     title = models.CharField(max_length=500)
     post = models.TextField(default="", blank=True)
@@ -68,14 +87,15 @@ class EventsNotApprovedOld(models.Model):  # Table 2
     address = models.CharField(max_length=500, blank=True)
     place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
     explored_date = models.DateTimeField(
-        "published date and time",
+        "published date and time", default=timezone.now
     )
     from_date = models.DateTimeField(
         "event from_date",
+        null=True, blank=True, default=default_event_date
     )
     to_date = models.DateTimeField(
         "event to_date",
-        blank=True,
+        null=True, blank=True, default=default_event_date
     )
 
     def __str__(self):
@@ -104,20 +124,7 @@ def last_queue():
         return q.queue + 2
 
 
-monthes = ['января', 'февраля', "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
-           "декабря"]
 
-
-def random_event_id():
-    return f"event{random.randint(1, 99)}_{timezone.now().date()}"
-
-def default_post_text():
-    month = monthes[default_event_date().month - 1]
-    return f"* {month}*  фестиваль *«ФЕЙСТНЕЙМ»*\n\nТЕКСТ\n\n*Где:*\n*Когда:*\n*Вход:*\n"
-
-
-def default_event_date():
-    return timezone.now() + timezone.timedelta(days=3)
 
 
 class Events2Post(models.Model):  # Table events for posting
