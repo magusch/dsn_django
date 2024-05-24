@@ -155,7 +155,8 @@ def move_event_to_post(Events_model):
         # make post in transfering
         ev = make_a_post_text(event_dict)
         event_dict['post'] = ev['post']
-        event_dict['place_id'] = ev['place']
+        event_dict['place_id'] = ev['place'] if ev['place'] is not None else (event.place.id if event.place is not None else None)
+
         Events2Post.objects.create(
             status="ReadyToPost", post_date=post_date, queue=queue, **event_dict
         )
