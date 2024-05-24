@@ -176,7 +176,7 @@ def move_event_to_site(events_model):
         "price",
         "category",
         "address",
-        #"place",
+        "place",
         "from_date",
         "to_date",
     ]
@@ -185,9 +185,16 @@ def move_event_to_site(events_model):
     events = events_model.objects.filter(status="Posted").exclude(event_id__in=existed_site_events)
     pub_datetime = timezone.now()
     event_count = events.count()
-    for event in events.values(*event2post_list):
+    for event in events:
+        event_dict = {field: getattr(event, field) for field in event2post_list}
+
+        if event.place is not None:
+            event_dict['place'] = event.place
+        else:
+            event_dict['place'] = None
+
         Event.objects.create(
-            pub_datetime=pub_datetime, **event
+            pub_datetime=pub_datetime, **event_dict
         )
 
     return event_count
