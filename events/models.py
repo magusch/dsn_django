@@ -74,27 +74,27 @@ class EventsNotApprovedNew(models.Model):
             )
 
 
-class EventsNotApprovedOld(models.Model):
+class EventsNotApprovedProposed(models.Model):
     event_id = models.CharField(max_length=30, default=random_event_id)
     approved = models.BooleanField(default=False)
-    title = models.CharField(max_length=500)
+    title = models.CharField("Заголовок", max_length=500)
     post = models.TextField(default="", blank=True)
-    full_text = models.TextField(default="", blank=True, null=True)
-    image = models.CharField(max_length=500, blank=True, null=True)
-    url = models.CharField(max_length=500, blank=True)
-    price = models.CharField(max_length=500, blank=True)
-    category = models.CharField(max_length=500, null=True, blank=True)
-    address = models.CharField(max_length=500, blank=True)
+    full_text = models.TextField("Текст мероприятия", default="", blank=True, null=True)
+    image = models.CharField("Ссылка на изображение", max_length=500, blank=True, null=True)
+    url = models.CharField("Ссылка на мероприятие", max_length=500, blank=True)
+    price = models.CharField("Цена", default="1000₽", max_length=500, blank=True)
+    category = models.CharField("Категория (тип мероприятия)", max_length=500, null=True, blank=True)
+    address = models.CharField("Адрес", max_length=500, blank=True)
     place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
     explored_date = models.DateTimeField(
         "published date and time", default=timezone.now
     )
     from_date = models.DateTimeField(
-        "event from_date",
+        "Дата и время начала мероприятия",
         null=True, blank=True, default=default_event_date
     )
     to_date = models.DateTimeField(
-        "event to_date",
+        "Дата и время окончания мероприятия",
         null=True, blank=True, default=default_event_date
     )
 
@@ -122,9 +122,6 @@ def last_queue():
     q = Events2Post.objects.order_by("-queue").first()
     if q:
         return q.queue + 2
-
-
-
 
 
 class Events2Post(models.Model):  # Table events for posting

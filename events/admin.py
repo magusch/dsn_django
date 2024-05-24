@@ -4,7 +4,7 @@ from django.utils.html import format_html
 
 import markdown
 
-from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime, Parameter, Event
+from .models import EventsNotApprovedNew, EventsNotApprovedProposed, Events2Post, PostingTime, Parameter, Event
 
 
 from . import utils
@@ -230,7 +230,7 @@ class ParametersAdmin(admin.ModelAdmin):
 
 
 admin.site.register(EventsNotApprovedNew, EventsAdmin)
-admin.site.register(EventsNotApprovedOld, EventsAdmin)
+admin.site.register(EventsNotApprovedProposed, EventsAdmin)
 admin.site.register(PostingTime, PostingTimesAdmin)
 admin.site.register(Events2Post, Events2PostAdmin)
 admin.site.register(Parameter, ParametersAdmin)

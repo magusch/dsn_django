@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.template import loader
 from django.contrib import messages
 
-from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, Parameter, Event
+from .models import EventsNotApprovedNew, EventsNotApprovedProposed, Events2Post, Parameter, Event
 
 from . import utils
 
@@ -62,7 +62,7 @@ def count_events_by_day(request):
 @staff_member_required
 def move_approved_events(request):
     utils.move_event_to_post(EventsNotApprovedNew)
-    utils.move_event_to_post(EventsNotApprovedOld)
+    utils.move_event_to_post(EventsNotApprovedProposed)
     if 'HTTP_REFERER' in request.META:
         response = redirect(request.META['HTTP_REFERER'])
     else:
@@ -84,7 +84,7 @@ def transfer_posted_events_to_site(request):
 @staff_member_required
 def remove_old_events(request):
     utils.delete_old_events(EventsNotApprovedNew)
-    utils.delete_old_events(EventsNotApprovedOld)
+    utils.delete_old_events(EventsNotApprovedProposed)
     utils.delete_old_events(Events2Post)
     if 'HTTP_REFERER' in request.META:
         response = redirect(request.META['HTTP_REFERER'])
@@ -258,7 +258,6 @@ def check_posts(request):
 from django.shortcuts import render, redirect
 from django.views import View
 from .forms import EventAddForm
-#from .models import EventsNotApprovedOld as EventsNotApprovedProposed
 
 
 class EventAddView(View):
@@ -272,7 +271,7 @@ class EventAddView(View):
     def post(self, request):
         form = self.form_class(request.POST)
         today = timezone.now().date()
-        events_today = EventsNotApprovedOld.objects.filter(explored_date__date=today).count()
+        events_today = EventsNotApprovedProposed.objects.filter(explored_date__date=today).count()
         if events_today >= 30:
             messages.error(request, 'Добавление мероприятий сегодня больше недоступно.')
             return redirect('add_event')
