@@ -132,6 +132,8 @@ def update_all(request):
     # Delete Old events from all tables
     remove_old_events(request)
 
+    utils.move_event_to_site(Events2Post)
+
     if 'HTTP_REFERER' in request.META:
         response = redirect(request.META['HTTP_REFERER'])
     else:
