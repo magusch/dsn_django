@@ -153,6 +153,7 @@ class Events2Post(models.Model):  # Table events for posting
     to_date = models.DateTimeField(
         "event to_date", default=default_event_date
     )
+    post_url = models.CharField(max_length=500, blank=True, null=True)
 
     def __str__(self):
         return self.title
