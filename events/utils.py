@@ -179,6 +179,7 @@ def move_event_to_site(events_model):
         "place",
         "from_date",
         "to_date",
+        "post_url"
     ]
 
     existed_site_events = Event.objects.values("event_id")
