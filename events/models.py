@@ -15,7 +15,26 @@ from place.models import Place
 from .helper.post_helper import PostHelper
 from .helper.post_checker import PostChecker
 
-class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
+
+def random_event_id():
+    return f"event{random.randint(1, 99)}_{timezone.now().date()}"
+
+
+monthes = ['января', 'февраля', "марта", "апреля",
+           "мая", "июня", "июля", "августа",
+           "сентября", "октября", "ноября", "декабря"]
+
+
+def default_post_text():
+    month = monthes[default_event_date().month - 1]
+    return f"* {month}*  фестиваль *«ФЕЙСТНЕЙМ»*\n\nТЕКСТ\n\n*Где:*\n*Когда:*\n*Вход:*\n"
+
+
+def default_event_date():
+    return timezone.now() + timezone.timedelta(days=3)
+
+
+class EventsNotApprovedNew(models.Model):
     event_id = models.CharField(max_length=30)
     approved = models.BooleanField(default=False, blank=True)
     title = models.CharField(max_length=500)
@@ -24,6 +43,7 @@ class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
     image = models.CharField(max_length=500, blank=True, null=True)
     url = models.CharField(max_length=500, blank=True)
     price = models.CharField(max_length=500, blank=True)
+    category = models.CharField(max_length=500, null=True, blank=True)
     address = models.CharField(max_length=500, blank=True)
     place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
     explored_date = models.DateTimeField(
@@ -54,26 +74,28 @@ class EventsNotApprovedNew(models.Model):  # Table 1 for events from escraper
             )
 
 
-class EventsNotApprovedOld(models.Model):  # Table 2
-    event_id = models.CharField(max_length=30)
+class EventsNotApprovedProposed(models.Model):
+    event_id = models.CharField(max_length=30, default=random_event_id)
     approved = models.BooleanField(default=False)
-    title = models.CharField(max_length=500)
+    title = models.CharField("Заголовок", max_length=500)
     post = models.TextField(default="", blank=True)
-    full_text = models.TextField(default="", blank=True, null=True)
-    image = models.CharField(max_length=500, blank=True, null=True)
-    url = models.CharField(max_length=500, blank=True)
-    price = models.CharField(max_length=500, blank=True)
-    address = models.CharField(max_length=500, blank=True)
+    full_text = models.TextField("Текст мероприятия", default="", blank=True, null=True)
+    image = models.CharField("Ссылка на изображение", max_length=500, blank=True, null=True)
+    url = models.CharField("Ссылка на мероприятие", max_length=500, blank=True)
+    price = models.CharField("Цена", default="1000₽", max_length=500, blank=True)
+    category = models.CharField("Категория (тип мероприятия)", max_length=500, null=True, blank=True)
+    address = models.CharField("Адрес", max_length=500, blank=True)
     place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
     explored_date = models.DateTimeField(
-        "published date and time",
+        "published date and time", default=timezone.now
     )
     from_date = models.DateTimeField(
-        "event from_date",
+        "Дата и время начала мероприятия",
+        null=True, blank=True, default=default_event_date
     )
     to_date = models.DateTimeField(
-        "event to_date",
-        blank=True,
+        "Дата и время окончания мероприятия",
+        null=True, blank=True, default=default_event_date
     )
 
     def __str__(self):
@@ -102,26 +124,10 @@ def last_queue():
         return q.queue + 2
 
 
-monthes = ['января', 'февраля', "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
-           "декабря"]
-
-
-def random_event_id():
-    return f"event{random.randint(1, 99)}_{timezone.now().date()}"
-
-
-def default_event_date():
-    return timezone.now() + timezone.timedelta(days=3)
-
-
 class Events2Post(models.Model):  # Table events for posting
     event_id = models.CharField(max_length=30, default=random_event_id)
     queue = models.IntegerField(default=last_queue)
     title = models.CharField(max_length=500)
-
-    month = monthes[default_event_date().month - 1]
-
-    default_post_text = f"* {month}*  фестиваль *«ааааа»*\n\n\n\n*Где:*\n*Когда:*\n*Вход:*"
     post = models.TextField(default=default_post_text, blank=True)
     full_text = models.TextField(default="", blank=True, null=True)
     image = models.CharField(max_length=500, blank=True, null=True)
@@ -133,6 +139,7 @@ class Events2Post(models.Model):  # Table events for posting
         default="ReadyToPost",
     )
     price = models.CharField(max_length=150, blank=True)
+    category = models.CharField(max_length=500, null=True, blank=True)
     address = models.CharField(max_length=500, blank=True)
 
     place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
@@ -146,6 +153,7 @@ class Events2Post(models.Model):  # Table events for posting
     to_date = models.DateTimeField(
         "event to_date", default=default_event_date
     )
+    post_url = models.CharField(max_length=500, blank=True, null=True)
 
     def __str__(self):
         return self.title
@@ -193,14 +201,24 @@ class Events2Post(models.Model):  # Table events for posting
         return self.place.markdown_address()
 
     def remake_post(self, save=False):
-        remaked_post = PostHelper(self).post_markdown()
-        self.post = remaked_post
-        if save: 
+        post_helper = PostHelper(self)
+
+        new_maked_event = {
+            'post': post_helper.post_markdown(),
+            'place_id': post_helper.place_id(),
+        }
+
+        if save:
+            self.post = new_maked_event['post']
+            self.place_id = new_maked_event['place_id']
             self.save()
-        return remaked_post
+
+        return new_maked_event
 
     def post_check(self):
-        result_checker = PostChecker(self.post).result
+        post_checker = PostChecker(self.post)
+        post_checker.place_empty(self.place)
+        result_checker = post_checker.result
 
         result_brief = ''
         for key in result_checker.keys():
@@ -257,10 +275,11 @@ class Event(models.Model):
     full_text = models.TextField(default="", blank=True, null=True)
     image = models.CharField(max_length=500, blank=True, null=True)
     url = models.CharField(max_length=500, blank=True)
+    post_url = models.CharField(max_length=500, blank=True, null=True)
     price = models.CharField(max_length=150, blank=True, null=True)
     address = models.CharField(max_length=500, blank=True, null=True)
     place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
-    #category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.CharField(max_length=500, null=True, blank=True)
 
     pub_datetime = models.DateTimeField('published date and time', default=timezone.now)
     from_date = models.DateTimeField("event from_date", default=default_event_date)

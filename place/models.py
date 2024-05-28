@@ -10,10 +10,19 @@ class Place(models.Model):
     place_city = models.CharField(max_length=500, default='SPb', blank=True,)
 
     def markdown_address(self):
-        return (f"[{self.place_name}, {self.place_address}]({self.url_to_address}), м.{self.place_metro}")
+        markdown_address = ''
+        if self.url_to_address != '':
+            markdown_address += f"[{self.place_name}, {self.place_address}]({self.url_to_address})"
+        else:
+            markdown_address += f"{self.place_name}, {self.place_address}"
+
+        if self.place_metro != '':
+            markdown_address += f", м.{self.place_metro}"
+
+        return markdown_address
 
     def __str__(self):
-        return (f"{self.place_name}, {self.place_address}")
+        return f"{self.place_name}, {self.place_address}"
 
 
 class PlaceKeyword(models.Model):
@@ -22,7 +31,6 @@ class PlaceKeyword(models.Model):
 
     def __str__(self):
         return (f"{self.place_keyword}, {self.place.place_address}")
-        #return (self.place_keyword)
 
 
 class TestEventPlace(models.Model):

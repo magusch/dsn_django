@@ -4,12 +4,12 @@ from django.utils.html import format_html
 
 import markdown
 
-from .models import EventsNotApprovedNew, EventsNotApprovedOld, Events2Post, PostingTime, Parameter, Event
+from .models import EventsNotApprovedNew, EventsNotApprovedProposed, Events2Post, PostingTime, Parameter, Event
 
 
 from . import utils
-
-from .helper.post_helper import PostHelper
+from django import forms
+from .widgets import PlaceAutocompleteWidget
 
 
 def open_url(obj):
@@ -45,6 +45,16 @@ class EventsAdmin(admin.ModelAdmin):
     approve_event.short_description = "Mark selected stories as approved"
 
 
+# Edited form
+class Events2PostAdminForm(forms.ModelForm):
+    class Meta:
+        model = Events2Post
+        widgets = {
+            'address': PlaceAutocompleteWidget(),
+        }
+        fields = '__all__'
+
+
 class Events2PostAdmin(admin.ModelAdmin):
     change_list_template = "events/change_list_approved.html"
     change_form_template = "events/change_form.html"
@@ -78,10 +88,11 @@ class Events2PostAdmin(admin.ModelAdmin):
     readonly_fields = ("markdown_post_view_model",)
     include = ( "markdown_post_view_model")
 
+    form = Events2PostAdminForm
+
     class Media:
-        js = ("js/post_to_markdown.js"
-            ,'admin/js/post_to_markdown.js',
-              "post_to_markdown.js")
+        pass
+        # js = ('admin.js')
 
     def markdown_post_view(self, instance):
         html_image = f"<div style='width:325px;'><img src='{instance.image}' width='325px'>"
@@ -212,14 +223,14 @@ class ParametersAdmin(admin.ModelAdmin):
     actions = ["copy",]
 
     def copy(self, request, queryset):
-        for object in queryset:
-            object.id = None
-            object.save()
+        for obj in queryset:
+            obj.id = None
+            obj.save()
     copy.short_description = "Duplicate selected record"
 
 
 admin.site.register(EventsNotApprovedNew, EventsAdmin)
-admin.site.register(EventsNotApprovedOld, EventsAdmin)
+admin.site.register(EventsNotApprovedProposed, EventsAdmin)
 admin.site.register(PostingTime, PostingTimesAdmin)
 admin.site.register(Events2Post, Events2PostAdmin)
 admin.site.register(Parameter, ParametersAdmin)

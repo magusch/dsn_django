@@ -17,8 +17,8 @@ class PostHelper:
         self.event = event
         self.dates_to_right_tz()
 
-        from .load_parameters import footer_link
-        self.footer_link = footer_link()
+        from .load_parameters import ParametersManager
+        self.param_manager = ParametersManager()
 
     def dates_to_right_tz(self):
         if type(self.event.from_date) == str:
@@ -36,8 +36,8 @@ class PostHelper:
         title = self.event.title
         title = title.replace("`", r"\`").replace("_", r"\_").replace("*", r"\*")
 
-        #title = re.sub(r"[\"'‘](?=[^\ \.!\n])", "«", title)
-        #title = re.sub(r"[\"'‘](?=[^a-zA-Zа-яА-Я0-9]|$)", "»", title)
+        # title = re.sub(r"[\"'‘](?=[^\ \.!\n])", "«", title)
+        # title = re.sub(r"[\"'‘](?=[^a-zA-Zа-яА-Я0-9]|$)", "»", title)
         title = re.sub(r'["\'](\S.*?)["\']', r'«\1»', title)
 
         if '«' in title and '»' in title:
@@ -53,7 +53,6 @@ class PostHelper:
             title = f"{title[0]}*{title[1:]}*"
 
         return title
-
 
     def post_markdown(self) -> object:
         title = self._title_markdown()
@@ -78,13 +77,15 @@ class PostHelper:
 
         address_line = self.address_markdown()
 
+        footer_link = self.param_manager.get_parameter('finish_link')
+        if not footer_link: footer_link = ''
 
         footer = (
             "\n\n"
             f"*Где:* {address_line}\n"
             f"*Когда:* {date_from_to} \n"
             f"*Вход:* [{self.event.price}]({self.event.url})"
-            f"\n\n{self.footer_link}"
+            f"\n\n{footer_link}"
         )
 
         full_post = (full_title + post_text.strip() + footer).strip()
@@ -106,8 +107,12 @@ class PostHelper:
                 if hasattr(self.event, 'place_id'):
                     self.event.place_id = addresses[0].place.id
             else:
-                address_line = \
-                    f"[{self.event.address}](https://2gis.ru/spb/search/{self.event.address})"
+                need_address_line_url = self.param_manager.get_parameter('need_address_line_url')
+                if need_address_line_url and need_address_line_url.lower() in ('true', '1'):
+                    address_line = \
+                        f"[{self.event.address}](https://2gis.ru/spb/search/{self.event.address})"
+                else:
+                    address_line = self.event.address
 
         return address_line
 
@@ -222,5 +227,3 @@ class DictAsMethods(object):
             super().__setattr__(name, value)
         else:
             self.data[name] = value
-
-

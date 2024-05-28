@@ -139,6 +139,7 @@ def move_event_to_post(Events_model):
         "image",
         "url",
         "price",
+        "category",
         "address",
         "explored_date",
         "from_date",
@@ -152,8 +153,10 @@ def move_event_to_post(Events_model):
     for event in events:
         event_dict = model_to_dict(event, fields=event2post_list)
         # make post in transfering
-        #event_full_text = PostHelper(event).post_markdown()
-        event_dict['post'] = make_a_post_text(event_dict)
+        ev = make_a_post_text(event_dict)
+        event_dict['post'] = ev['post']
+        event_dict['place_id'] = ev['place'] if ev['place'] is not None else (event.place.id if event.place is not None else None)
+
         Events2Post.objects.create(
             status="ReadyToPost", post_date=post_date, queue=queue, **event_dict
         )
@@ -171,19 +174,28 @@ def move_event_to_site(events_model):
         "image",
         "url",
         "price",
+        "category",
         "address",
-        #"place",
+        "place",
         "from_date",
         "to_date",
+        "post_url"
     ]
 
     existed_site_events = Event.objects.values("event_id")
     events = events_model.objects.filter(status="Posted").exclude(event_id__in=existed_site_events)
     pub_datetime = timezone.now()
     event_count = events.count()
-    for event in events.values(*event2post_list):
+    for event in events:
+        event_dict = {field: getattr(event, field) for field in event2post_list}
+
+        if event.place is not None:
+            event_dict['place'] = event.place
+        else:
+            event_dict['place'] = None
+
         Event.objects.create(
-            pub_datetime=pub_datetime, **event
+            pub_datetime=pub_datetime, **event_dict
         )
 
     return event_count
@@ -272,11 +284,14 @@ def count_events_by_day(*kwargs):
 
 
 def make_a_post_text(event, save=0):
+    remake_event_data = {}
     if type(event) == Events2Post:
-        new_event_post = event.remake_post(save=save)
+        remaked_event = event.remake_post(save=save)
+        remake_event_data['post'] = remaked_event['post']
+        remake_event_data['place'] = remaked_event['place_id']
     elif type(event) == dict:
-        new_event_post = PostHelper(event).post_markdown()
-    else:
-        new_event_post = None
-
-    return new_event_post
+        post_helper = PostHelper(event)
+        remake_event_data['post'] = post_helper.post_markdown()
+        remake_event_data['place'] = post_helper.place_id()
+    
+    return remake_event_data
