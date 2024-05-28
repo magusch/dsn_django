@@ -247,6 +247,7 @@ class PostingTime(models.Model):
     end_weekday = models.IntegerField(default=6)
     posting_time_hours = models.IntegerField(default=13)
     posting_time_minutes = models.IntegerField(default=20)
+    posting_time = models.TimeField(null=True)
 
     def __str__(self):
         if (0 <= self.start_weekday < 7) & (0 <= self.end_weekday < 7):

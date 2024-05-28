@@ -203,7 +203,7 @@ class PostingTimesAdmin(admin.ModelAdmin):
 
     list_filter = ["start_weekday"]
     ordering = ["start_weekday", "posting_time_hours"]
-    list_editable = ["posting_time_hours", "posting_time_minutes"]
+    list_editable = ["posting_time",]
 
     def weekdays(self):
         if (0 <= self.start_weekday < 7) & (0 <= self.end_weekday < 7):
@@ -214,7 +214,7 @@ class PostingTimesAdmin(admin.ModelAdmin):
     def timepost(self):
         return f"{self.posting_time_hours}:{self.posting_time_minutes:02}"
 
-    list_display = [weekdays, timepost, "posting_time_hours", "posting_time_minutes"]
+    list_display = [weekdays, timepost, "posting_time", ]
 
 
 class ParametersAdmin(admin.ModelAdmin):

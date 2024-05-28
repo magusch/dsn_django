@@ -23,13 +23,13 @@ def _days_posting_times(time_point: datetime) -> Generator[None, List[datetime.d
     weekday = (
         PostingTime.objects.filter(start_weekday__lte=0)
         .filter(end_weekday__gte=4)
-        .order_by("posting_time_hours")
+        .order_by("posting_time__hour")
         .first()
     )
     weekend = (
         PostingTime.objects.filter(start_weekday__lte=5)
         .filter(end_weekday__gte=6)
-        .order_by("posting_time_hours")
+        .order_by("posting_time__hour")
         .first()
     )
 
@@ -207,13 +207,13 @@ def good_post_time(last_post_time):
     post_time_query_first = (
         PostingTime.objects.filter(start_weekday__lte=last_post_time.weekday())
         .filter(end_weekday__gte=last_post_time.weekday())
-        .filter(posting_time_hours__gte=last_post_time.hour + current_tz_int + 1)
-        .order_by('posting_time_hours').first()
+        .filter(posting_time__hour__gte=last_post_time.hour + current_tz_int + 1)
+        .order_by('posting_time__hour').first()
     )
     if post_time_query_first:
         post_time = last_post_time.replace(
-            hour=post_time_query_first.posting_time_hours - current_tz_int,
-            minute=post_time_query_first.posting_time_minutes,
+            hour=post_time_query_first.posting_time.hour - current_tz_int,
+            minute=post_time_query_first.posting_time.minute,
             second=0,
             microsecond=0,
         )
@@ -222,12 +222,12 @@ def good_post_time(last_post_time):
         post_time = (
             PostingTime.objects.filter(start_weekday__lte=next_day.weekday())
             .filter(end_weekday__gte=next_day.weekday())
-            .order_by("posting_time_hours")
+            .order_by("posting_time__hour")
             .first()
         )
         post_time = next_day.replace(
-            hour=post_time.posting_time_hours - current_tz_int,
-            minute=post_time.posting_time_minutes,
+            hour=post_time.posting_time.hour - current_tz_int,
+            minute=post_time.posting_time.minute,
             second=0,
             microsecond=0,
         )
