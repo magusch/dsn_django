@@ -27,6 +27,7 @@ class EventsAdmin(admin.ModelAdmin):
     search_fields = ["title", "post"]
     actions = ["approve_event"]
     ordering = ["-explored_date", "-from_date"]
+    readonly_fields = ('image_tag',)
 
     def approve_event(self, request, queryset):
         updated = queryset.update(approved=True)
@@ -41,6 +42,11 @@ class EventsAdmin(admin.ModelAdmin):
             messages.SUCCESS,
         )
         utils.move_event_to_post(self.model)
+
+    def image_tag(self, obj):
+        if obj.image_upload:
+            return format_html('<img src="{}" style="max-width: 200px; max-height: 200px;" />', obj.image_upload.url)
+        return 'No Image'
 
     approve_event.short_description = "Mark selected stories as approved"
 

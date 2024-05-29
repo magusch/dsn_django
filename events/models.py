@@ -80,6 +80,7 @@ class EventsNotApprovedProposed(models.Model):
     title = models.CharField("Заголовок", max_length=500)
     post = models.TextField(default="", blank=True)
     full_text = models.TextField("Текст мероприятия", default="", blank=True, null=True)
+    image_upload = models.ImageField(upload_to='event_images/', blank=True, null=True)
     image = models.CharField("Ссылка на изображение", max_length=500, blank=True, null=True)
     url = models.CharField("Ссылка на мероприятие", max_length=500, blank=True)
     price = models.CharField("Цена", default="1000₽", max_length=500, blank=True)
@@ -114,6 +115,13 @@ class EventsNotApprovedProposed(models.Model):
                 f'<span style="color: Green;">{self.from_date.ctime()}</span>'
             )
 
+    def save(self, *args, **kwargs):
+        super(EventsNotApprovedProposed, self).save(*args, **kwargs)
+        if self.image_upload and self.image != self.image_upload.url:
+            self.image = self.image_upload.url
+            super(EventsNotApprovedProposed, self).save(update_fields=['image'])
+
+
 
 status_color = {"ReadyToPost": "green", "Posted": "red", "ForFuture": 'blue', "Spam": "red", "Scrape": "purple"}
 
@@ -131,6 +139,7 @@ class Events2Post(models.Model):  # Table events for posting
     post = models.TextField(default=default_post_text, blank=True)
     full_text = models.TextField(default="", blank=True, null=True)
     image = models.CharField(max_length=500, blank=True, null=True)
+    image_upload = models.ImageField(upload_to='event_images/', blank=True, null=True)
     url = models.CharField(max_length=500, blank=True)
     status = models.CharField(
         max_length=15,
@@ -157,6 +166,12 @@ class Events2Post(models.Model):  # Table events for posting
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        super(Events2Post, self).save(*args, **kwargs)
+        if self.image_upload and self.image != self.image_upload.url:
+            self.image = self.image_upload.url
+            super(Events2Post, self).save(update_fields=['image'])
 
     def to_delete(self):
         return self.explored_date <= timezone.now() - timezone.timedelta(days=2)
