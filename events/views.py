@@ -255,8 +255,6 @@ def check_posts(request):
     return HttpResponse(answer)
 
 
-# views.py
-
 from django.shortcuts import render, redirect
 from django.views import View
 from .forms import EventAddForm
@@ -271,12 +269,13 @@ class EventAddView(View):
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
-        form = self.form_class(request.POST)
+        form = self.form_class(request.POST, request.FILES)
         today = timezone.now().date()
         events_today = EventsNotApprovedProposed.objects.filter(explored_date__date=today).count()
         if events_today >= 30:
             messages.error(request, 'Добавление мероприятий сегодня больше недоступно.')
             return redirect('add_event')
+
         if form.is_valid():
             event = form.save(commit=False)
             event.save()
