@@ -56,6 +56,11 @@
                 to_date: to_date,
             };
 
+            var isReadyCheckbox = document.querySelector('input[name="is_ready"]');
+            if (isReadyCheckbox) {
+                isReadyCheckbox.checked = true;
+            };
+
             $.ajax({
                 url: remake_post_url,
                 method: 'POST',
