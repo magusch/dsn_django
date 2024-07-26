@@ -183,26 +183,22 @@ class Events2Post(models.Model):  # Table events for posting
         )
 
     def from_date_color(self):
+        #from_date_color_html = ""
         if self.status == 'ForFuture':
-            return format_html(
-                f'<span style="color: Blue;">{self.from_date.ctime()}</span>'
-            )
+            from_date_color_html = f'<span style="color: Blue;">{self.from_date.ctime()}</span>'
         elif self.status == 'Posted' or self.status == 'Spam' or self.from_date < timezone.now():
-            return format_html(
-                f'<span style="color: Red;">{self.from_date.ctime()}</span>'
-            )
+            from_date_color_html = f'<span style="color: Red;">{self.from_date.ctime()}</span>'
         elif self.status == 'Scrape':
-            return format_html(
-                f'<span style="color: Purple;">{self.from_date.ctime()}</span>'
-            )
+            from_date_color_html = f'<span style="color: Purple;">{self.from_date.ctime()}</span>'
         elif (self.from_date - timezone.now()).days < 3:
-            return format_html(
-                f'<span style="color: Orange;">{self.from_date.ctime()}</span>'
-            )
+            from_date_color_html = f'<span style="color: Orange;">{self.from_date.ctime()}</span>'
         else:
-            return format_html(
-                f'<span style="color: Green;">{self.from_date.ctime()}</span>'
-            )
+            from_date_color_html = f'<span style="color: Green;">{self.from_date.ctime()}</span>'
+
+        if self.is_ready is True:
+            from_date_color_html += "<div style='text-align:left'>✅</div>"
+
+        return format_html(from_date_color_html)
 
     def markdown_post_view_model(self):
         html_image = f"<div id='markdown_post' style='width:325px;'><img src='{self.image}' width='325px'>"
