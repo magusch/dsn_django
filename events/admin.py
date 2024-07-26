@@ -90,9 +90,10 @@ class Events2PostAdmin(admin.ModelAdmin):
     admin.ModelAdmin.save_on_top = True
     admin.ModelAdmin.actions_on_bottom = True
     admin.ModelAdmin.actions_selection_counter = True
-    admin.ModelAdmin.actions_selection_counter = True
+
     readonly_fields = ("markdown_post_view_model",)
     include = ( "markdown_post_view_model")
+    exclude = ( "queue", "explored_date", "post_url")
 
     form = Events2PostAdminForm
 
