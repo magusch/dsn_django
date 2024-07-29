@@ -2,6 +2,8 @@ from django.contrib import admin, messages
 from django.utils.translation import ngettext
 from django.utils.html import format_html
 
+from django.utils.http import urlencode
+
 import markdown
 
 from .models import EventsNotApprovedNew, EventsNotApprovedProposed, Events2Post, PostingTime, Parameter, Event
@@ -96,6 +98,38 @@ class Events2PostAdmin(admin.ModelAdmin):
     exclude = ( "queue", "explored_date", "post_url")
 
     form = Events2PostAdminForm
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        if request.GET.get('all') == 'true':
+            return queryset  # Show all events
+        return queryset.exclude(status='Posted')
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['show_all_url'] = self.get_show_all_url(request)
+        extra_context['filter_ready_to_post_url'] = self.get_filter_ready_to_post_url(request)
+        return super().changelist_view(request, extra_context=extra_context)
+
+    def get_show_all_url(self, request):
+        from django.urls import reverse
+
+        opts = self.model._meta
+        base_url = reverse(f'admin:{opts.app_label}_{opts.model_name}_changelist')
+        query_params = request.GET.copy()
+        query_params['all'] = 'true'
+        query_string = urlencode(query_params, doseq=True)
+        return f'{base_url}?{query_string}'
+
+    def get_filter_ready_to_post_url(self, request):
+        from django.urls import reverse
+
+        opts = self.model._meta
+        base_url = reverse(f'admin:{opts.app_label}_{opts.model_name}_changelist')
+        query_params = request.GET.copy()
+        query_params['status__exact'] = 'ReadyToPost'
+        query_string = urlencode(query_params, doseq=True)
+        return f'{base_url}?{query_string}'
 
     class Media:
         pass
