@@ -122,7 +122,6 @@ class EventsNotApprovedProposed(models.Model):
             super(EventsNotApprovedProposed, self).save(update_fields=['image'])
 
 
-
 status_color = {"ReadyToPost": "green", "Posted": "red", "ForFuture": 'blue', "Spam": "red", "Scrape": "purple"}
 
 
@@ -147,6 +146,7 @@ class Events2Post(models.Model):  # Table events for posting
         choices=(("ReadyToPost", "Ready To Post"), ("Posted", "Posted"), ("ForFuture", "For Future"),
                  ("Spam", "Spam"), ("Scrape", "Scrape It")),
         default="ReadyToPost",
+        db_index=True
     )
     price = models.CharField(max_length=150, blank=True)
     category = models.CharField(max_length=500, null=True, blank=True)
