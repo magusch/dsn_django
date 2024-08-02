@@ -132,7 +132,7 @@ def last_queue():
 
 
 class Events2Post(models.Model):  # Table events for posting
-    event_id = models.CharField(max_length=30, default=random_event_id)
+    event_id = models.CharField(max_length=30, default=random_event_id, db_index=True)
     queue = models.IntegerField(default=last_queue)
     is_ready = models.BooleanField(default=False)
     title = models.CharField(max_length=500)
