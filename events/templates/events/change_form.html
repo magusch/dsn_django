@@ -36,27 +36,25 @@
           var remake_post_ai_url = '{% url 'remake_empty_post_by_ai' %}';
         {% endif %}
 
+        let initial_event
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initial_event = getEventValues()
+        }, false);
+
+
 
         function remakePost() {
-            var from_date = document.getElementById('id_from_date_0').value + ' ' + document.getElementById('id_from_date_1').value
-            var to_date = document.getElementById('id_to_date_0').value + ' ' + document.getElementById('id_to_date_1').value
-
-            var place_id = document.getElementById('id_place').value
-
-            var data = {
+            let event_data = getEventValues()
+            let data = {
                 csrfmiddlewaretoken: '{{ csrf_token }}',
                 id: '{{ original.id }}',
-                place_id: place_id,
-                title: document.getElementById('id_title').value,
-                full_text: document.getElementById('id_full_text').value,
-                url: document.getElementById('id_url').value,
-                price: document.getElementById('id_price').value,
-                address: document.getElementById('id_address').value,
-                from_date: from_date,
-                to_date: to_date,
+                ...event_data
             };
 
-            var isReadyCheckbox = document.querySelector('input[name="is_ready"]');
+            //Object.assign(data, event_data)
+
+            let isReadyCheckbox = document.querySelector('input[name="is_ready"]');
             if (isReadyCheckbox) {
                 isReadyCheckbox.checked = true;
             };
@@ -69,7 +67,7 @@
                 success: function(response) {
 
                     // Put all data from remake_post_url in fields with id="id_#{key}"
-                    var data = response;
+                    let data = response;
                     for (const key in data) {
                         if (data.hasOwnProperty(key)) {
                             const element = document.getElementById(`id_${key}`);
@@ -86,22 +84,12 @@
         }
 
         function remakePostByAi() {
-            var from_date = document.getElementById('id_from_date_0').value + ' ' + document.getElementById('id_from_date_1').value
-            var to_date = document.getElementById('id_to_date_0').value + ' ' + document.getElementById('id_to_date_1').value
+            let event_data = getEventValues()
 
-            var place_id = document.getElementById('id_place').value
-
-            var data = {
+            let data = {
                 csrfmiddlewaretoken: '{{ csrf_token }}',
                 id: '{{ original.id }}',
-                place_id: place_id,
-                title: document.getElementById('id_title').value,
-                full_text: document.getElementById('id_full_text').value,
-                url: document.getElementById('id_url').value,
-                price: document.getElementById('id_price').value,
-                address: document.getElementById('id_address').value,
-                from_date: from_date,
-                to_date: to_date,
+                ...event_data
             };
 
             $.ajax({
@@ -126,14 +114,109 @@
             });
         }
 
+        function getEventValues() {
+            let from_date = document.getElementById('id_from_date_0').value + ' ' + document.getElementById('id_from_date_1').value
+            let to_date = document.getElementById('id_to_date_0').value + ' ' + document.getElementById('id_to_date_1').value
+
+            let event = {
+                id: '{{ original.id }}',
+                place_id: document.getElementById('id_place').value,
+                title: document.getElementById('id_title').value,
+                full_text: document.getElementById('id_full_text').value,
+                url: document.getElementById('id_url').value,
+                price: document.getElementById('id_price').value,
+                address: document.getElementById('id_address').value,
+                from_date: from_date,
+                to_date: to_date,
+            }
+            return event
+        }
+
+        function newRemakePostByAi() {
+            let event_data = getEventValues()
+
+            let data = {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                api_url: 'api/ai_update_event/',
+                method: 'POST',
+                data: {
+                    'is_new': 0,
+                    'event': event_data
+                },
+            };
+
+            $.ajax({
+                    url: '{% url 'channel_api' %}',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        let taskId = response['task_id']
+                        let rest_interval = 50000;
+                        let interval_sec = 5000;
+                        const interval = setInterval(async function() {
+
+                            let result = await taskStatus(taskId);
+                            if (result) {
+                                if(result['status']==='success') {
+                                    let data = result['result'];
+                                    for (const key in data) {
+                                        if (data.hasOwnProperty(key)) {
+                                            const element = document.getElementById(`id_${key}`);
+                                            if (element) {
+                                                element.value = data[key];
+                                            }
+                                        }
+                                    }
+                                    clearInterval(interval);  // Stop checking when result is available
+                                }
+                            }
+                            rest_interval = rest_interval - interval_sec
+                        }, interval_sec);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+
+        }
+
+        async function taskStatus(taskId) {
+            let data = {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                api_url: 'api/status/' + taskId,
+                method: 'GET',
+                data: {
+                    task_id: taskId
+                }
+            }
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: '{% url 'channel_api' %}',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        //console.log(response);
+                        resolve(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                        reject(error);
+                    }
+
+                });
+            });
+        }
+
 
         (function ($) {
             $(document).ready(function () {
                 $('.place-autocomplete').on('input', function () {
-                    var query = $(this).val();
+                    let query = $(this).val();
                     if (query.length>1) {
                         $.get('/place/place-autocomplete/', {query: query}, function (data) {
-                            var resultsDiv = $('#place-autocomplete-results');
+                            let resultsDiv = $('#place-autocomplete-results');
                             resultsDiv.empty();
                             data.results.forEach(function (result) {
                                 resultsDiv.append('<div><a href="#" data-id="' + result.id + '">' + result.place_name + '</a></div>');
@@ -144,13 +227,25 @@
 
                 $('#place-autocomplete-results').on('click', 'a', function (e) {
                     e.preventDefault();
-                    var placeId = $(this).data('id');
-                    var placeName = $(this).text();
+                    let placeId = $(this).data('id');
+                    let placeName = $(this).text();
                     $('.place-autocomplete').val(placeName);
                     $('#id_place').val(placeId);
                 });
             });
         })(django.jQuery);
+
+
+        function return_initial_event() {
+            for (const key in initial_event) {
+                if (initial_event.hasOwnProperty(key)) {
+                    const element = document.getElementById(`id_${key}`);
+                    if (element) {
+                        element.value = initial_event[key];
+                    }
+                }
+            }
+        };
 
 
     </script>
@@ -166,16 +261,13 @@
           <a href="#" onclick="remakePostByAi()"  alt="It uses value of title, full_text, date_from, price, url">Remake post by GPT</a>
       </li>
       <li>
+          <a href="#" onclick="newRemakePostByAi()"  alt="It uses value of title, full_text, date_from, price, url">NEW Remake post by GPT</a>
+      </li>
+      <li>
           <a href="#" onclick="hideFullText()" id="hide_full_text">Show full text</a>
       </li>
 
-        {% if change %}
-            {% if not is_popup %}
-                {% block object-tools-items %}
-                    {% change_form_object_tools %}
-                {% endblock %}
-            {% endif %}
-        {% endif %}
+
 
     </ul>
 {% endblock %}
@@ -199,6 +291,20 @@
   {% include "admin/includes/fieldset.html" %}
 {% endfor %}
 {% endblock %}
+<p>
+<ul class="object-tools">
+    <li>
+        <a href="#" onclick="return_initial_event()"  alt="It uses value of title, full_text, date_from, price, url">Return initial Event Data</a>
+    </li>
+    {% if change %}
+        {% if not is_popup %}
+            {% block object-tools-items %}
+                {% change_form_object_tools %}
+            {% endblock %}
+        {% endif %}
+    {% endif %}
+</ul>
+</p>
 
 {% block after_field_sets %}{% endblock %}
 

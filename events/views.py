@@ -1,9 +1,10 @@
-import json
+import os, json
+import requests
 
 import markdown
 
 from django.utils import timezone
-from django.http import HttpResponse  # TODO: delete
+from django.http import HttpResponse, JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
@@ -16,12 +17,16 @@ from . import utils
 
 from .helper.open_ai_helper import OpenAIHelper
 
+CHANNEL_API_URL = os.environ.get("CHANNEL_API_URL")
+CHANNEL_API_TOKEN = os.environ.get("CHANNEL_API_TOKEN")
+
 
 def event_post_html(request, event_id):
     event = get_object_or_404(Events2Post, pk=event_id)
     # image = f"<img src='{event.image}'>"
     # html = image + markdown.markdown(event.post)
     return HttpResponse(event.markdown_post_view_model())
+
 
 def all_events(request):
     all_events = Events2Post.objects.filter(status="Posted")
@@ -253,6 +258,28 @@ def check_posts(request):
 
     answer = json.dumps(result, ensure_ascii=False)
     return HttpResponse(answer)
+
+
+@csrf_exempt
+@staff_member_required
+def proxy_request_to_channel_api(request):
+    if request.method == "POST":
+
+        data = json.loads(request.body)
+        url = CHANNEL_API_URL + data['api_url']
+        headers = {
+            'Authorization': f"Bearer {CHANNEL_API_TOKEN}",
+            'Content-Type': 'application/json'
+        }
+
+        if data['method'] == 'POST':
+            response = requests.post(url, headers=headers, data=json.dumps(data['data']))
+            return JsonResponse(response.json(), status=response.status_code)
+        elif data['method'] == 'GET':
+            response = requests.get(url, headers=headers)
+            return JsonResponse(response.json(), status=response.status_code)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 from django.shortcuts import render, redirect
