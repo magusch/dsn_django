@@ -9,9 +9,9 @@ class Place(models.Model):
     place_metro = models.CharField(max_length=500, blank=True,)
     place_city = models.CharField(max_length=500, default='SPb', blank=True,)
 
-    def markdown_address(self):
+    def markdown_address(self, with_url=True):
         markdown_address = ''
-        if self.url_to_address != '':
+        if self.url_to_address != '' and with_url is True:
             markdown_address += f"[{self.place_name}, {self.place_address}]({self.url_to_address})"
         else:
             markdown_address += f"{self.place_name}, {self.place_address}"

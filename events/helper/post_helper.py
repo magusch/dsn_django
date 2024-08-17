@@ -93,22 +93,29 @@ class PostHelper:
 
     def address_markdown(self):
         address_line = None
+
+        need_address_line_url = self.param_manager.get_parameter('need_address_line_url')
+        if need_address_line_url:
+            if need_address_line_url.lower() in ('true', '1'):
+                need_address_line_url = True
+            else:
+                need_address_line_url = False
+
         if hasattr(self.event, 'place_id'):
             if self.event.place_id:
                 place = place_orm_object(self.event.place_id)
-                address_line = place.markdown_address()
+                address_line = place.markdown_address(need_address_line_url)
 
         if address_line is None:
             raw_address = self.event.address
             addresses = address_from_places(raw_address)
 
             if addresses:
-                address_line = addresses[0].place.markdown_address()
+                address_line = addresses[0].place.markdown_address(need_address_line_url)
                 if hasattr(self.event, 'place_id'):
                     self.event.place_id = addresses[0].place.id
             else:
-                need_address_line_url = self.param_manager.get_parameter('need_address_line_url')
-                if need_address_line_url and need_address_line_url.lower() in ('true', '1'):
+                if need_address_line_url:
                     address_line = \
                         f"[{self.event.address}](https://2gis.ru/spb/search/{self.event.address})"
                 else:
