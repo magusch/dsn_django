@@ -101,6 +101,8 @@ class Events2PostAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
+        if 'object_id' in request.resolver_match.kwargs:
+            return queryset
         if request.GET.get('all') == 'true':
             return queryset  # Show all events
         return queryset.exclude(status='Posted')
