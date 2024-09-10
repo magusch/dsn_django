@@ -94,8 +94,23 @@ class Events2PostAdmin(admin.ModelAdmin):
     admin.ModelAdmin.actions_selection_counter = True
 
     readonly_fields = ("markdown_post_view_model",)
-    include = ( "markdown_post_view_model")
-    exclude = ( "queue", "explored_date", "post_url")
+    exclude = ("queue", "explored_date", )
+
+    exclude_posted = ("markdown_post_view_model", "image_upload",
+                      "address", "place", "post_date", "is_ready")
+    exclude_not_posted = ('post_url',)
+
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj)
+        if obj and obj.status == 'Posted':
+            for incl_field in self.exclude_not_posted:
+                if incl_field not in fields:
+                    fields.append(incl_field)
+            fields = [field for field in fields if field not in self.exclude_posted]
+        else:
+            fields = [field for field in fields if field not in self.exclude_not_posted]
+
+        return fields
 
     form = Events2PostAdminForm
 
