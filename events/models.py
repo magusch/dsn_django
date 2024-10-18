@@ -11,6 +11,7 @@ import random
 import markdown
 
 from place.models import Place
+from category.models import SubCategory, Category
 
 from .helper.post_helper import PostHelper
 from .helper.post_checker import PostChecker
@@ -150,6 +151,8 @@ class Events2Post(models.Model):  # Table events for posting
     )
     price = models.CharField(max_length=150, blank=True)
     category = models.CharField(max_length=500, null=True, blank=True)
+
+    category_id = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
     address = models.CharField(max_length=500, blank=True)
 
     place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
@@ -169,10 +172,12 @@ class Events2Post(models.Model):  # Table events for posting
         return self.title
 
     def save(self, *args, **kwargs):
-        super(Events2Post, self).save(*args, **kwargs)
+        if self.category_id is None or self.category_id.id==2:
+            subcategory, created = SubCategory.objects.get_or_create(name=self.category)
+            self.category_id = subcategory.category
         if self.image_upload and self.image != self.image_upload.url:
             self.image = self.image_upload.url
-            super(Events2Post, self).save(update_fields=['image'])
+        super(Events2Post, self).save(*args, **kwargs)
 
     def to_delete(self):
         return self.explored_date <= timezone.now() - timezone.timedelta(days=2)
@@ -218,11 +223,13 @@ class Events2Post(models.Model):  # Table events for posting
         new_maked_event = {
             'post': post_helper.post_markdown(),
             'place_id': post_helper.place_id(),
+            'category_id': post_helper.category_id(),
         }
 
         if save:
             self.post = new_maked_event['post']
             self.place_id = new_maked_event['place_id']
+            self.category_id = new_maked_event['category_id']
             self.save()
 
         return new_maked_event

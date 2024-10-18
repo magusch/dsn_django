@@ -156,6 +156,7 @@ def move_event_to_post(Events_model):
         ev = make_a_post_text(event_dict)
         event_dict['post'] = ev['post']
         event_dict['place_id'] = ev['place'] if ev['place'] is not None else (event.place.id if event.place is not None else None)
+        event_dict['category_id'] = ev['category_id']
 
         Events2Post.objects.create(
             status="ReadyToPost", post_date=post_date, queue=queue, **event_dict
@@ -289,9 +290,13 @@ def make_a_post_text(event, save=0):
         remaked_event = event.remake_post(save=save)
         remake_event_data['post'] = remaked_event['post']
         remake_event_data['place'] = remaked_event['place_id']
+        remake_event_data['category_id'] = remaked_event['category_id']
     elif type(event) == dict:
         post_helper = PostHelper(event)
         remake_event_data['post'] = post_helper.post_markdown()
         remake_event_data['place'] = post_helper.place_id()
+        category_id = post_helper.category_id()
+        if category_id is not None:
+            remake_event_data['category_id'] = category_id
     
     return remake_event_data

@@ -4,6 +4,8 @@ from place.utils import address_from_places, place_orm_object
 
 from .datetime_helper import weekday_name, month_name
 
+from category.models import SubCategory
+
 import pytz
 
 from datetime import datetime
@@ -204,6 +206,12 @@ class PostHelper:
             start_format = f"{s_weekday}, {s_day} {s_month} {s_hour:02}:{s_minute:02}"
 
         return start_format + end_format
+
+    def category_id(self):
+        if hasattr(self.event, 'category'):
+            subcategory, created = SubCategory.objects.get_or_create(name=self.event.category)
+            print(subcategory.category)
+            return subcategory.category
 
     def reduce_text(self):
         post_text = self.event.full_text
