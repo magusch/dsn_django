@@ -28,5 +28,5 @@ class SubCategory(models.Model):
             self.category = other_category
 
         Events2Post = apps.get_model('events', 'Events2Post')
-        Events2Post.objects.filter(category=self.name).exclude(category_id=self.category).update(category_id=self.category)
+        Events2Post.objects.filter(category=self.name).exclude(main_category=self.category).update(main_category=self.category)
         super().save(*args, **kwargs)

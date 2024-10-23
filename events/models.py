@@ -152,7 +152,7 @@ class Events2Post(models.Model):  # Table events for posting
     price = models.CharField(max_length=150, blank=True)
     category = models.CharField(max_length=500, null=True, blank=True)
 
-    category_id = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
+    main_category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
     address = models.CharField(max_length=500, blank=True)
 
     place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True)
@@ -172,9 +172,9 @@ class Events2Post(models.Model):  # Table events for posting
         return self.title
 
     def save(self, *args, **kwargs):
-        if self.category is not None and (self.category_id is None or self.category_id.id==2):
+        if self.category is not None and (self.main_category is None or self.main_category.id==2):
             subcategory, created = SubCategory.objects.get_or_create(name=self.category)
-            self.category_id = subcategory.category
+            self.main_category = subcategory.category
         if self.image_upload and self.image != self.image_upload.url:
             self.image = self.image_upload.url
         super(Events2Post, self).save(*args, **kwargs)
@@ -223,13 +223,13 @@ class Events2Post(models.Model):  # Table events for posting
         new_maked_event = {
             'post': post_helper.post_markdown(),
             'place_id': post_helper.place_id(),
-            'category_id': post_helper.category_id(),
+            'main_category': post_helper.main_category(),
         }
 
         if save:
             self.post = new_maked_event['post']
             self.place_id = new_maked_event['place_id']
-            self.category_id = new_maked_event['category_id']
+            self.main_category = new_maked_event['main_category']
             self.save()
 
         return new_maked_event
