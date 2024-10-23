@@ -210,7 +210,6 @@ class PostHelper:
     def category_id(self):
         if hasattr(self.event, 'category'):
             subcategory, created = SubCategory.objects.get_or_create(name=self.event.category)
-            print(subcategory.category)
             return subcategory.category
 
     def reduce_text(self):
