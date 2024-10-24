@@ -208,7 +208,7 @@ class PostHelper:
         return start_format + end_format
 
     def main_category(self):
-        if hasattr(self.event, 'category'):
+        if hasattr(self.event, 'category') and self.event.category is not None:
             subcategory, created = SubCategory.objects.get_or_create(name=self.event.category)
             return subcategory.category
 
