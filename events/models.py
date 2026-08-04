@@ -74,6 +74,8 @@ class Source(models.TextChoices):
     KASSIR = 'KASSIR', 'kassir'
     CFG = 'CFG', 'config'
     AFISHA = 'AFISHA', 'afisha'
+    YANDEX = 'YA', 'yandex'
+    TRIPSTER = 'TRIPSTER', 'tripster'
     OTHER = 'OTHER', 'Other'
 
 
