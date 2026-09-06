@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 from django.contrib import admin, messages
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from .models import FilterSet, EventSelection, PostTemplate, GeneratedPost, PostingSchedule
 from .services import FilterService
@@ -62,15 +65,86 @@ class GeneratedPostAdmin(admin.ModelAdmin):
     list_filter = ['status', 'created_at']
     exclude = ['created_at', 'updated_at']
     search_fields = ['title', 'content']
+    readonly_fields = ['post_preview']
+
+    change_list_template = "content_generator/generatedpost_change_list.html"
+    change_form_template = "content_generator/change_form_with_preview.html"
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['theme_filter_sets'] = FilterSet.objects.filter(is_active=True).order_by('name')
+        return super().changelist_view(request, extra_context=extra_context)
+
+    @admin.display(description='Как будет выглядеть в канале')
+    def post_preview(self, obj):
+        if obj is None or not obj.pk:
+            return '—'
+        return obj.markdown_post_view_model()
+
+
+PUBLISH_GRACE = timedelta(minutes=10)
+
+
+def _human_delta(delta):
+    minutes = int(abs(delta).total_seconds() // 60)
+    days, minutes = divmod(minutes, 60 * 24)
+    hours, minutes = divmod(minutes, 60)
+    parts = []
+    if days:
+        parts.append(f'{days} д')
+    if hours:
+        parts.append(f'{hours} ч')
+    if minutes or not parts:
+        parts.append(f'{minutes} мин')
+    return ' '.join(parts)
 
 
 @admin.register(PostingSchedule)
 class PostingScheduleAdmin(admin.ModelAdmin):
-    list_display = ['generated_post', 'status', 'scheduled_time', 'is_posted', 'retry_count']
+    list_display = ['generated_post', 'status', 'scheduled_time', 'slot_state',
+                    'is_posted', 'retry_count', 'post_preview']
     list_filter = ['platform', 'is_posted', 'scheduled_time']
     list_editable = ["scheduled_time", "status"]
-    readonly_fields = ['posted_at']
+    readonly_fields = ['posted_at', 'post_preview']
     exclude = ['created_at', 'updated_at']
+
+    change_list_template = "content_generator/postingschedule_change_list.html"
+    change_form_template = "content_generator/change_form_with_preview.html"
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('generated_post')
+
+    @admin.display(description='Слот')
+    def slot_state(self, obj):
+        """Whether the slot is still going to fire — a missed one is silent otherwise."""
+        if obj.is_posted or obj.status == 'Posted':
+            return format_html('<span style="color:#2f7d32;">опубликован</span>')
+        if obj.scheduled_time is None:
+            return '—'
+        if obj.status != 'ReadyToPost':
+            return obj.get_status_display()
+
+        left = obj.scheduled_time - timezone.now()
+        if -PUBLISH_GRACE <= left <= timedelta(0):
+            return format_html('<span style="color:#b36b00;">публикуется</span>')
+        if left < -PUBLISH_GRACE:
+            return format_html(
+                '<span style="color:#ba2121;" title="Слот пропущен, пост не будет '
+                'опубликован — поставьте новое время">просрочен на {}</span>',
+                _human_delta(left),
+            )
+        return format_html('<span style="color:#555;">через {}</span>', _human_delta(left))
+
+    @admin.display(description='Пост в канале')
+    def post_preview(self, obj):
+        if obj is None or obj.generated_post_id is None:
+            return '—'
+        card = obj.generated_post.markdown_post_view_model()
+        return format_html(
+            '<div class="tg-post-cell">{}'
+            '<button type="button" class="tg-post-toggle">Развернуть</button></div>',
+            card,
+        )
 
 
 @admin.action(description="Сгенерировать пост по шаблону")
