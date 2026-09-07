@@ -4,20 +4,40 @@
     {{ block.super }}
     {% include "content_generator/partials/tg_post_card_css.html" %}
     <style>
-        /* Post preview column — wide enough to read, scrollable instead of endless rows */
-        #result_list td.field-post_preview { width: 400px; min-width: 340px; vertical-align: top; padding: 8px; }
-        #result_list td.field-post_preview .tg-post-cell { position: relative; }
-        #result_list td.field-post_preview .tg-post-card {
-            max-height: 320px; overflow-y: auto; margin: 0;
-        }
-        #result_list td.field-post_preview .tg-post-cell.expanded .tg-post-card { max-height: none; }
-        .tg-post-toggle {
-            display: inline-block; margin-top: 4px; font-size: 11px; color: #417690;
-            background: none; border: none; padding: 0; cursor: pointer;
-        }
-        .tg-post-toggle:hover { text-decoration: underline; }
+        /* Toolbar counters — same idea as the Events2Post status chips */
+        .dsn-slot-chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+        .dsn-slot-chip { display: inline-block; padding: 2px 10px; border: 1px solid #c8d1d9;
+                         border-radius: 12px; background: #f4f6f8; font-size: 12px;
+                         text-decoration: none; white-space: nowrap; }
+        .dsn-slot-chip:hover { background: #e3e8ee; }
+        .dsn-slot-chip b { font-weight: 600; margin-left: 3px; }
+        .dsn-slot-chip-active { background: #2c3e50; color: #fff !important; border-color: #2c3e50; }
+        .dsn-slot-note { font-size: 11px; color: #888; margin-top: 2px; }
+
+        /* Table: readable rows, header stays put while scrolling a long schedule */
+        #result_list thead th { position: sticky; top: 0; background: #fff; z-index: 2; }
         #result_list td, #result_list th { vertical-align: top; }
-        #result_list tbody tr { border-bottom: 1px solid #eee; }
+        #result_list tbody tr:hover { background-color: #f0f4f8; }
+        #result_list td.field-post_link { min-width: 180px; }
+        #result_list td.field-theme, #result_list td.field-slot_state { white-space: nowrap; }
+        #result_list td.field-events_count { text-align: center; }
+
+        /* Preview: three lines by default, full post on demand */
+        #result_list td.field-post_preview { width: 380px; min-width: 300px; padding: 8px; }
+        #result_list td.field-post_preview .tg-post-card {
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+            overflow: hidden; margin: 0;
+        }
+        #result_list td.field-post_preview .tg-post-card .tg-post-image { display: none; }
+        #result_list td.field-post_preview .tg-post-cell.expanded .tg-post-card {
+            display: block; overflow-y: auto; max-height: 420px;
+        }
+        #result_list td.field-post_preview .tg-post-cell.expanded .tg-post-card .tg-post-image {
+            display: block;
+        }
+        .tg-post-toggle { display: inline-block; margin-top: 4px; font-size: 11px; color: #417690;
+                          background: none; border: none; padding: 0; cursor: pointer; }
+        .tg-post-toggle:hover { text-decoration: underline; }
     </style>
     <script>
     (function() {
@@ -39,4 +59,18 @@
         }
     })();
     </script>
+{% endblock %}
+
+{% block object-tools %}
+    {% if slot_summary %}
+        <div class="dsn-slot-chips">
+            {% for chip in slot_summary %}
+                <a class="dsn-slot-chip{% if chip.active %} dsn-slot-chip-active{% endif %}"
+                   href="{{ chip.url }}" style="{% if not chip.active %}color: {{ chip.color }};{% endif %}">
+                    {{ chip.label }} <b>{{ chip.count }}</b>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {{ block.super }}
 {% endblock %}

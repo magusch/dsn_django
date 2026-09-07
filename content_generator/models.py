@@ -10,6 +10,7 @@ class FilterSet(models.Model):
     FILTER_TYPES = [
         ('standard', 'Стандартный'),
         ('custom', 'Пользовательский'),
+        ('semantic', 'Семантический (тема дайджеста)'),
     ]
 
     name = models.CharField(max_length=200, verbose_name='Название набора фильтров')
